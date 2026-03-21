@@ -31,8 +31,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:20p
 .header-right{display:flex;align-items:center;gap:10px}
 .icon-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:8px 14px;border-radius:var(--r-sm);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem;transition:.2s;display:flex;align-items:center;gap:6px}
 .icon-btn:hover{border-color:var(--border3);color:var(--text);background:var(--bg4)}
-.api-indicator{width:7px;height:7px;border-radius:50%;background:var(--red);transition:.3s}
-.api-indicator.ok{background:var(--green);box-shadow:0 0 8px var(--green)}
+
 
 /* INPUT SECTION */
 .input-section{padding:36px 0 32px}
@@ -261,52 +260,15 @@ tr:hover td{background:var(--bg3);color:var(--text)}
 </head>
 <body>
 
-<!-- Settings Modal -->
-<div class="modal-overlay" id="settings-modal">
-  <div class="modal">
-    <button class="close-btn" id="close-settings">✕</button>
-    <div class="modal-title">API Configuration</div>
-    <div class="modal-sub">Enter your Moralis API key to fetch live blockchain data.</div>
-    <div class="form-group">
-      <label class="form-label">Moralis API Key</label>
-      <input class="form-input" id="api-key-input" type="password" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." autocomplete="off">
-      <div class="form-hint">Get your key at <a href="https://admin.moralis.io/api-keys" target="_blank">admin.moralis.io/api-keys</a> → copy the <strong style="color:var(--text)">Web3 API Key</strong>. Free tier: 40,000 req/month.</div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-ghost" id="cancel-settings">Cancel</button>
-      <button class="btn-primary" id="save-settings">Save & Connect</button>
-    </div>
-  </div>
-</div>
-
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <div id="app">
-  <!-- file:// warning banner -->
-  <div id="file-warning" style="display:none;background:#1a0a00;border:1px solid var(--yellow);border-radius:var(--r);padding:14px 18px;margin-top:20px;font-size:.88rem;line-height:1.7">
-    <strong style="color:var(--yellow)">⚠ File opened via file:// — API calls will be blocked by your browser.</strong><br>
-    <span style="color:var(--text2)">You need to serve this file from a local server. Pick the easiest option for you:</span><br><br>
-    <span style="color:var(--text3)">Option 1 — Python (if installed):</span><br>
-    <code style="background:var(--bg4);padding:4px 10px;border-radius:5px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.82rem;display:inline-block;margin:4px 0">cd path/to/folder && python -m http.server 8080</code>
-    <span style="color:var(--text3)"> → then open </span><code style="color:var(--accent);font-size:.82rem">http://localhost:8080/chainlens.html</code><br><br>
-    <span style="color:var(--text3)">Option 2 — Node.js (if installed):</span><br>
-    <code style="background:var(--bg4);padding:4px 10px;border-radius:5px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.82rem;display:inline-block;margin:4px 0">npx serve .</code>
-    <span style="color:var(--text3)"> → then open the localhost URL it shows</span><br><br>
-    <span style="color:var(--text3)">Option 3 — VS Code: Install the <strong style="color:var(--text)">Live Server</strong> extension → right-click the file → <em>Open with Live Server</em></span>
-  </div>
-
   <!-- Header -->
   <header>
     <div class="logo">
       <div class="logo-hex">⬡</div>
       Chain<span>Lens</span>
-    </div>
-    <div class="header-right">
-      <button class="icon-btn" id="settings-btn">
-        <div class="api-indicator" id="api-indicator"></div>
-        ⚙ API Settings
-      </button>
     </div>
   </header>
 
@@ -576,7 +538,7 @@ const PER_PAGE  = 20;
 // STATE
 // ─────────────────────────────────────────────
 let S = {
-  apiKey:       localStorage.getItem('cl_api_key') || '',
+  apiKey:       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjAxMjc2YTk1LTU1NjYtNGJjOC1hNGIyLWNiNzVkMzdhMDZlNyIsIm9yZ0lkIjoiNTA2MjEwIiwidXNlcklkIjoiNTIwODYxIiwidHlwZUlkIjoiNzI1ZmFiNDAtMzJiMy00OTAxLWI5MjAtODg1MWVjYWFlNmRkIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3NzM5NTQ0NzYsImV4cCI6NDkyOTcxNDQ3Nn0.qCkpsnRzoO6twErI_83feuhh-AfeOqq65t2H4Ztyqsw',
   wallet:       '',
   chain:        'eth',
   txns:         [],
@@ -693,16 +655,6 @@ async function fetchSolTxns(addr, key) {
   return Array.isArray(d) ? d : (d.result||[]);
 }
 
-async function testConnection(key) {
-  try {
-    // Lightweight call — fetch a known address's balance to confirm key works
-    await moralisFetch(`${EVM_BASE}/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045/balance?chain=0x1`, key);
-    return { ok: true };
-  } catch(e) {
-    return { ok: false, error: e.message };
-  }
-}
-
 // ─────────────────────────────────────────────
 // UI STATE
 // ─────────────────────────────────────────────
@@ -740,12 +692,6 @@ function showEmpty() {
 async function analyze() {
   const addr = document.getElementById('wallet-input').value.trim();
   if (!addr) { showToast('Please enter a wallet address','error'); return; }
-  if (!S.apiKey) {
-    document.getElementById('settings-modal').classList.add('open');
-    document.getElementById('api-key-input').focus();
-    showToast('Please set your Moralis API key first','error');
-    return;
-  }
   S.wallet=addr; S.chain=getChain(); S.histPage=1; S.tokensPage=1; S.bulkPage=1;
   S.lastQuery={addr, chain:S.chain};
 
@@ -795,7 +741,7 @@ async function analyze() {
     const msg = e.message || 'Unknown error';
     let sub = 'Check the details below and try again.';
     if (msg.includes('API key') || msg.includes('401') || msg.includes('403'))
-      sub = '→ Go to ⚙ API Settings and re-enter your Moralis Web3 API key.';
+      sub = '→ API key error. Please contact the site owner.';
     else if (msg.includes('Network'))
       sub = '→ You appear to be offline. Check your internet connection.';
     else if (msg.includes('400') || msg.includes('invalid'))
@@ -1165,40 +1111,11 @@ function switchTab(tab) {
 }
 function getChain(){ return S.chain; }
 
-// ─────────────────────────────────────────────
-// SETTINGS
-// ─────────────────────────────────────────────
-function openSettings() {
-  document.getElementById('api-key-input').value=S.apiKey;
-  document.getElementById('settings-modal').classList.add('open');
-}
-function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
-async function saveSettings() {
-  const k=document.getElementById('api-key-input').value.trim();
-  if(!k){showToast('Please enter an API key','error');return;}
-  const btn=document.getElementById('save-settings');
-  btn.textContent='Testing…'; btn.disabled=true;
-  const r=await testConnection(k);
-  btn.textContent='Save & Connect'; btn.disabled=false;
-  if(!r.ok){showToast('Key test failed: '+r.error,'error');return;}
-  S.apiKey=k; localStorage.setItem('cl_api_key',k);
-  updateApiIndicator(); closeSettings();
-  showToast('Connected! API key saved.','success');
-}
-function updateApiIndicator() {
-  document.getElementById('api-indicator').className='api-indicator'+(S.apiKey?' ok':'');
-}
 
 // ─────────────────────────────────────────────
 // EVENT LISTENERS
 // ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
-  // Detect file:// protocol and show warning
-  if (window.location.protocol === 'file:') {
-    document.getElementById('file-warning').style.display = 'block';
-  }
-
-  updateApiIndicator();
 
   // Chain buttons
   document.querySelectorAll('.chain-btn').forEach(btn=>{
@@ -1212,13 +1129,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Analyze
   document.getElementById('analyze-btn').addEventListener('click', analyze);
   document.getElementById('wallet-input').addEventListener('keydown', e=>{ if(e.key==='Enter') analyze(); });
-
-  // Settings
-  document.getElementById('settings-btn').addEventListener('click', openSettings);
-  document.getElementById('close-settings').addEventListener('click', closeSettings);
-  document.getElementById('cancel-settings').addEventListener('click', closeSettings);
-  document.getElementById('save-settings').addEventListener('click', saveSettings);
-  document.getElementById('settings-modal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeSettings(); });
 
   // Tabs
   document.querySelectorAll('.tab-btn').forEach(btn=>{
@@ -1281,10 +1191,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     });
   });
 
-  // If API key already saved, show green indicator
-  if(S.apiKey){
-    showToast('API key loaded from storage ✓','success');
-  }
 });
 </script>
 </body>
