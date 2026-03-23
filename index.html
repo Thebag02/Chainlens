@@ -255,22 +255,6 @@ tr:hover td{background:rgba(255,255,255,0.018);color:var(--text)}
 <body>
 <div class="toast" id="toast"></div>
 
-<!-- SETTINGS MODAL -->
-<div class="smodal-overlay" id="smodal">
-  <div class="smodal">
-    <button class="sclosebtn" onclick="closeSettings()">✕</button>
-    <div class="smodal-title">API Configuration</div>
-    <div class="smodal-sub">Connect your Moralis Web3 API key to fetch live blockchain data.</div>
-    <label class="sform-label">Moralis Web3 API Key</label>
-    <input class="sform-input" id="api-input" type="password" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." autocomplete="off">
-    <div class="sform-hint">Get your key at <a href="https://admin.moralis.io/api-keys" target="_blank">admin.moralis.io/api-keys</a> → copy the <strong style="color:var(--text2)">Web3 API Key</strong>. Free tier: 40k req/month, no credit card.</div>
-    <div class="smodal-actions">
-      <button class="sbtn-ghost" onclick="closeSettings()">Cancel</button>
-      <button class="sbtn-primary" id="save-key-btn" onclick="saveKey()">Save & Connect</button>
-    </div>
-  </div>
-</div>
-
 <div id="app">
 
   <header>
@@ -283,7 +267,7 @@ tr:hover td{background:rgba(255,255,255,0.018);color:var(--text)}
       <div class="ppill" id="pill-bnb"><span class="sym">BNB</span><span class="val" id="pp-bnb">—</span></div>
       <div class="ppill" id="pill-sol"><span class="sym">SOL</span><span class="val" id="pp-sol">—</span></div>
     </div>
-    <button class="hbtn" id="settings-btn">⚙ API Settings</button>
+  
   </header>
 
   <div id="file-warning">
@@ -441,7 +425,7 @@ const SOL='https://solana-gateway.moralis.io';
 const PER=20;
 
 let S={
-  apiKey:localStorage.getItem('cl_key')||'',
+  apiKey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjAxMjc2YTk1LTU1NjYtNGJjOC1hNGIyLWNiNzVkMzdhMDZlNyIsIm9yZ0lkIjoiNTA2MjEwIiwidXNlcklkIjoiNTIwODYxIiwidHlwZUlkIjoiNzI1ZmFiNDAtMzJiMy00OTAxLWI5MjAtODg1MWVjYWFlNmRkIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3NzM5NTQ0NzYsImV4cCI6NDkyOTcxNDQ3Nn0.qCkpsnRzoO6twErI_83feuhh-AfeOqq65t2H4Ztyqsw',
   wallet:'',chain:'eth',txns:[],tokens:[],
   prices:{eth:0,bnb:0,sol:0},
   histPage:1,tokPage:1,bulkPage:1,
@@ -812,18 +796,6 @@ function doExpBulk(){
   exportCSV(getBulk().map(r=>({wallet:r.addr,transactions:r.txns,sent_native:r.sent,sent_usd:toUSD(r.sent)||'',received_native:r.recv,received_usd:toUSD(r.recv)||'',net_native:r.recv-r.sent,net_usd:toUSD(Math.abs(r.recv-r.sent))||'',symbol:ch.sym,last_activity:fmtDate(r.lastTs)})),`chainlens_bulk_${S.wallet.slice(0,10)}.csv`);
 }
 
-// ── SETTINGS ─────────────────────────────────────────────
-function openSettings(){const o=document.getElementById('smodal');o.style.display='flex';document.getElementById('api-input').value=S.apiKey;}
-function closeSettings(){document.getElementById('smodal').style.display='none';}
-async function saveKey(){
-  const k=document.getElementById('api-input').value.trim();
-  if(!k){showToast('Please enter your API key','error');return;}
-  const btn=document.getElementById('save-key-btn');btn.textContent='Testing…';btn.disabled=true;
-  const r=await testKey(k);btn.textContent='Save & Connect';btn.disabled=false;
-  if(!r.ok){showToast('Key test failed: '+r.error,'error');return;}
-  S.apiKey=k;localStorage.setItem('cl_key',k);closeSettings();showToast('Connected — API key saved!','success');
-}
-
 // ── TABS ─────────────────────────────────────────────────
 function switchTab(tab){
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
@@ -848,8 +820,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   }));
   document.getElementById('analyze-btn').addEventListener('click',analyze);
   document.getElementById('wallet-input').addEventListener('keydown',e=>{if(e.key==='Enter')analyze();});
-  document.getElementById('settings-btn').addEventListener('click',openSettings);
-  document.getElementById('smodal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSettings();});
   document.querySelectorAll('.tbtn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 
   ['f-search','f-dir','f-status'].forEach(id=>{
@@ -889,7 +859,6 @@ document.addEventListener('DOMContentLoaded',()=>{
       S.histPage=1;renderHistory();
     });
   });
-  if(S.apiKey)showToast('API key loaded ✓','success');
 });
 </script>
 </body>
