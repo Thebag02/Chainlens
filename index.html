@@ -3,1194 +3,893 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChainLens — Web3 Transaction Analyzer</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>ChainLens — Web3 Wallet Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#07090f;--bg2:#0c1018;--bg3:#111824;--bg4:#171f2e;
-  --border:#1c2840;--border2:#243050;--border3:#2d3d5a;
-  --text:#dce8f5;--text2:#7a90a8;--text3:#3a4d63;
-  --accent:#00d4ff;--accent-dim:rgba(0,212,255,0.12);
-  --green:#00e87a;--green-dim:rgba(0,232,122,0.12);
-  --red:#ff3d6b;--red-dim:rgba(255,61,107,0.12);
-  --yellow:#ffa500;--yellow-dim:rgba(255,165,0,0.12);
-  --eth-c:#627eea;--bnb-c:#f0b90b;--base-c:#2d6ef5;--sol-c:#9945ff;
-  --r:12px;--r-sm:8px;--r-xs:5px;
+  --bg:#08080f;--bg2:#0d0d18;--bg3:#111120;--bg4:#161628;--bg5:#1c1c30;
+  --glass:rgba(255,255,255,0.03);--glass2:rgba(255,255,255,0.055);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.11);--border3:rgba(255,255,255,0.18);
+  --text:#eeeef5;--text2:#8888aa;--text3:#44446a;
+  --gold:#f5a623;--gold-dim:rgba(245,166,35,0.12);--gold-glow:rgba(245,166,35,0.25);
+  --violet:#7c5cfc;--violet-dim:rgba(124,92,252,0.12);
+  --green:#00c896;--green-dim:rgba(0,200,150,0.1);
+  --red:#f43f5e;--red-dim:rgba(244,63,94,0.1);
+  --eth-c:#7B93FF;--bnb-c:#f0b90b;--base-c:#4f7fff;--sol-c:#b57bff;
+  --r:14px;--r-sm:10px;--r-xs:6px;
+  --shadow:0 4px 24px rgba(0,0,0,0.5);
 }
 html{font-size:14px;scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.5}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.018) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
-#app{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 20px 60px}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.6}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 50% at 10% 0%,rgba(124,92,252,0.08) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 90% 100%,rgba(245,166,35,0.06) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 50% 50%,rgba(0,200,150,0.03) 0%,transparent 70%);pointer-events:none}
+body::after{content:'';position:fixed;inset:0;z-index:0;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.012'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+#app{position:relative;z-index:1;max-width:1320px;margin:0 auto;padding:0 24px 80px}
 
 /* HEADER */
-header{display:flex;align-items:center;justify-content:space-between;padding:20px 0 28px;border-bottom:1px solid var(--border)}
-.logo{display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;letter-spacing:-0.5px;color:var(--text)}
-.logo-hex{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),#0070ff);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 18px rgba(0,212,255,0.35)}
-.logo span{color:var(--accent)}
-.header-right{display:flex;align-items:center;gap:10px}
-.icon-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:8px 14px;border-radius:var(--r-sm);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem;transition:.2s;display:flex;align-items:center;gap:6px}
-.icon-btn:hover{border-color:var(--border3);color:var(--text);background:var(--bg4)}
+header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;background:rgba(8,8,15,0.88);backdrop-filter:blur(20px);margin:0 -24px;margin-bottom:0}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--violet),var(--gold));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 24px var(--gold-glow),0 0 48px var(--violet-dim);flex-shrink:0}
+.logo-text{font-family:'Bricolage Grotesque',sans-serif;font-size:1.25rem;font-weight:800;letter-spacing:-.5px}
+.logo-text em{font-style:normal;background:linear-gradient(135deg,var(--violet),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.price-bar{display:flex;align-items:center;gap:8px}
+.ppill{display:flex;align-items:center;gap:7px;padding:6px 13px;background:var(--glass);border:1px solid var(--border);border-radius:40px;font-size:.76rem;font-family:'Fira Code',monospace;color:var(--text2);transition:.3s}
+.ppill.live{border-color:rgba(0,200,150,0.2)}
+.ppill .sym{color:var(--text3);font-size:.7rem}
+.ppill .val{color:var(--text);font-weight:500}
+.hbtn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--r-sm);background:var(--glass);border:1px solid var(--border2);color:var(--text2);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:500;transition:.2s}
+.hbtn:hover{border-color:var(--border3);color:var(--text);background:var(--glass2)}
 
+/* HERO */
+.hero{padding:48px 0 38px;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.73rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;padding:5px 14px;border:1px solid var(--gold-dim);border-radius:40px;background:var(--gold-dim)}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(2rem,4vw,3rem);font-weight:800;line-height:1.1;letter-spacing:-.03em;margin-bottom:12px}
+.hero h1 .g{background:linear-gradient(135deg,var(--text) 0%,var(--text2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--text3);font-size:.95rem;max-width:440px;margin:0 auto 36px}
 
-/* INPUT SECTION */
-.input-section{padding:36px 0 32px}
-.section-label{font-size:.75rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
-.chain-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-.chain-btn{display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:40px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;transition:.2s;position:relative;overflow:hidden}
-.chain-btn::before{content:'';position:absolute;inset:0;opacity:0;transition:.2s}
-.chain-btn:hover{color:var(--text);border-color:var(--border3)}
-.chain-btn.active{color:#fff;font-weight:500}
-.chain-btn[data-chain="eth"].active{border-color:var(--eth-c);background:rgba(98,126,234,0.15);color:var(--eth-c);box-shadow:0 0 16px rgba(98,126,234,0.2)}
-.chain-btn[data-chain="bsc"].active{border-color:var(--bnb-c);background:rgba(240,185,11,0.12);color:var(--bnb-c);box-shadow:0 0 16px rgba(240,185,11,0.2)}
-.chain-btn[data-chain="base"].active{border-color:var(--base-c);background:rgba(45,110,245,0.15);color:var(--base-c);box-shadow:0 0 16px rgba(45,110,245,0.2)}
-.chain-btn[data-chain="solana"].active{border-color:var(--sol-c);background:rgba(153,69,255,0.15);color:var(--sol-c);box-shadow:0 0 16px rgba(153,69,255,0.2)}
-.chain-dot{width:8px;height:8px;border-radius:50%}
-[data-chain="eth"] .chain-dot{background:var(--eth-c)}
-[data-chain="bsc"] .chain-dot{background:var(--bnb-c)}
-[data-chain="base"] .chain-dot{background:var(--base-c)}
-[data-chain="solana"] .chain-dot{background:var(--sol-c)}
+/* CHAIN PILLS */
+.chain-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.cpill{display:flex;align-items:center;gap:8px;padding:8px 18px;border-radius:40px;border:1px solid var(--border2);background:var(--glass);color:var(--text3);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;font-weight:600;transition:.25s;user-select:none}
+.cpill:hover{color:var(--text2);border-color:var(--border3);background:var(--glass2)}
+.cpill.active{color:#fff}
+.cpill[data-chain="eth"].active{border-color:var(--eth-c);background:rgba(123,147,255,0.12);color:var(--eth-c);box-shadow:0 0 20px rgba(123,147,255,0.15)}
+.cpill[data-chain="bsc"].active{border-color:var(--bnb-c);background:rgba(240,185,11,0.1);color:var(--bnb-c);box-shadow:0 0 20px rgba(240,185,11,0.15)}
+.cpill[data-chain="base"].active{border-color:var(--base-c);background:rgba(79,127,255,0.12);color:var(--base-c);box-shadow:0 0 20px rgba(79,127,255,0.15)}
+.cpill[data-chain="solana"].active{border-color:var(--sol-c);background:rgba(181,123,255,0.12);color:var(--sol-c);box-shadow:0 0 20px rgba(181,123,255,0.15)}
+.cdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+[data-chain="eth"] .cdot{background:var(--eth-c)}[data-chain="bsc"] .cdot{background:var(--bnb-c)}
+[data-chain="base"] .cdot{background:var(--base-c)}[data-chain="solana"] .cdot{background:var(--sol-c)}
 
-.wallet-row{display:flex;gap:10px}
-.wallet-input-wrap{flex:1;position:relative}
-.wallet-input-wrap input{width:100%;padding:14px 20px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.88rem;outline:none;transition:.2s;letter-spacing:.02em}
-.wallet-input-wrap input::placeholder{color:var(--text3);font-family:'DM Sans',sans-serif;font-size:.9rem;letter-spacing:0}
-.wallet-input-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
-.analyze-btn{padding:14px 28px;background:var(--accent);color:#000;border:none;border-radius:var(--r);font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:.2s;white-space:nowrap;letter-spacing:.02em}
-.analyze-btn:hover{background:#00bde8;box-shadow:0 0 24px rgba(0,212,255,0.4)}
-.analyze-btn:disabled{opacity:.5;cursor:not-allowed}
+/* SEARCH */
+.sbar{display:flex;gap:10px;max-width:720px;margin:0 auto;padding:6px 6px 6px 20px;background:var(--bg3);border:1px solid var(--border2);border-radius:18px;transition:.3s}
+.sbar:focus-within{border-color:rgba(124,92,252,0.5);box-shadow:0 0 0 4px rgba(124,92,252,0.08),var(--shadow)}
+.sbar input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Fira Code',monospace;font-size:.9rem;letter-spacing:.02em;min-width:0}
+.sbar input::placeholder{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text3);letter-spacing:0;font-size:.88rem}
+.gobtn{padding:12px 26px;border:none;border-radius:13px;background:linear-gradient(135deg,var(--violet),#5b3fd4);color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:.2s;white-space:nowrap;flex-shrink:0;box-shadow:0 4px 20px rgba(124,92,252,0.35)}
+.gobtn:hover{background:linear-gradient(135deg,#8d70ff,#6b4fe4);box-shadow:0 6px 28px rgba(124,92,252,0.5);transform:translateY(-1px)}
+.gobtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
-/* EMPTY STATE */
-#empty-state{padding:80px 0;text-align:center}
-.empty-icon{font-size:3rem;margin-bottom:20px;opacity:.4}
-.empty-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text2);margin-bottom:10px}
-.empty-sub{color:var(--text3);font-size:.95rem;max-width:400px;margin:0 auto 28px}
-.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;max-width:700px;margin:0 auto}
-.feature-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:left}
-.feature-card .fc-icon{font-size:1.4rem;margin-bottom:8px}
-.feature-card .fc-title{font-weight:500;font-size:.88rem;color:var(--text);margin-bottom:4px}
-.feature-card .fc-desc{font-size:.8rem;color:var(--text3)}
+/* FILE WARNING */
+#file-warning{display:none;background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.25);border-radius:var(--r);padding:16px 20px;margin-top:20px;font-size:.86rem;line-height:1.9;color:var(--text2)}
+#file-warning strong{color:var(--gold)}
+#file-warning code{background:var(--bg4);padding:3px 10px;border-radius:5px;color:var(--violet);font-family:'Fira Code',monospace;font-size:.8rem;display:inline-block;margin:2px 0}
 
-/* LOADING */
+/* STATES */
+#empty-state{padding:56px 0;text-align:center}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;max-width:760px;margin:0 auto}
+.fcard{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:20px;text-align:left;transition:.2s}
+.fcard:hover{border-color:var(--border2);background:var(--glass2)}
+.fi2{font-size:1.4rem;margin-bottom:10px}.ft{font-weight:600;font-size:.88rem;color:var(--text);margin-bottom:4px}.fd{font-size:.78rem;color:var(--text3);line-height:1.5}
+
 #loading-state{padding:80px 0;text-align:center;display:none}
-.loading-spinner{width:44px;height:44px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 20px}
+.lring{width:52px;height:52px;margin:0 auto 24px;position:relative}
+.lring::before{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid var(--border2)}
+.lring::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid transparent;border-top-color:var(--violet);animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{color:var(--text2);font-size:.95rem}
-.loading-progress{color:var(--text3);font-size:.82rem;margin-top:6px}
+.ltxt{color:var(--text2);font-size:.95rem;font-weight:500}.lprog{color:var(--text3);font-size:.8rem;margin-top:8px}
 
-/* ERROR */
 #error-state{padding:60px 0;text-align:center;display:none}
-.error-icon{font-size:2.5rem;margin-bottom:16px;color:var(--red)}
-.error-msg{color:var(--red);font-size:1rem;margin-bottom:8px;font-weight:500}
-.error-sub{color:var(--text3);font-size:.85rem;margin-bottom:20px}
-.retry-btn{padding:10px 24px;background:transparent;border:1px solid var(--red);color:var(--red);border-radius:var(--r-sm);cursor:pointer;font-family:'DM Sans',sans-serif;transition:.2s}
-.retry-btn:hover{background:var(--red-dim)}
+.eicon{font-size:2.5rem;margin-bottom:14px}
+.emsg{color:var(--red);font-size:.95rem;font-weight:600;margin-bottom:6px;max-width:500px;margin-left:auto;margin-right:auto}
+.esub{color:var(--text3);font-size:.83rem;margin-bottom:22px;max-width:460px;margin-left:auto;margin-right:auto}
+.ertry{padding:10px 24px;background:transparent;border:1px solid var(--red);color:var(--red);border-radius:var(--r-sm);cursor:pointer;font-size:.84rem;transition:.2s}
+.ertry:hover{background:var(--red-dim)}
 
-/* STATS CARDS */
-#results{display:none}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:32px 0 28px}
-.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;position:relative;overflow:hidden;transition:.2s}
-.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:.6}
-.stat-card:nth-child(1)::after{background:linear-gradient(90deg,var(--accent),transparent)}
-.stat-card:nth-child(2)::after{background:linear-gradient(90deg,var(--red),transparent)}
-.stat-card:nth-child(3)::after{background:linear-gradient(90deg,var(--green),transparent)}
-.stat-card:nth-child(4)::after{background:linear-gradient(90deg,var(--yellow),transparent)}
-.stat-label{font-size:.78rem;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;font-weight:500}
-.stat-value{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--text);line-height:1}
-.stat-sub{font-size:.78rem;color:var(--text3);margin-top:6px}
-.stat-icon{position:absolute;right:18px;top:18px;font-size:1.3rem;opacity:.15}
+/* RESULTS */
+#results{display:none;animation:fadeUp .4s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* WALLET BANNER */
+.wbanner{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 22px;margin:28px 0;background:var(--glass);border:1px solid var(--border2);border-radius:var(--r)}
+.wbchain{padding:4px 12px;border-radius:30px;font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;flex-shrink:0}
+.wbchain.eth{background:rgba(123,147,255,0.12);color:var(--eth-c);border:1px solid rgba(123,147,255,0.25)}
+.wbchain.bsc{background:rgba(240,185,11,0.1);color:var(--bnb-c);border:1px solid rgba(240,185,11,0.25)}
+.wbchain.base{background:rgba(79,127,255,0.12);color:var(--base-c);border:1px solid rgba(79,127,255,0.25)}
+.wbchain.solana{background:rgba(181,123,255,0.12);color:var(--sol-c);border:1px solid rgba(181,123,255,0.25)}
+.wbaddr{font-family:'Fira Code',monospace;font-size:.88rem;color:var(--text);flex:1;min-width:180px;word-break:break-all}
+.wbmeta{display:flex;align-items:center;gap:20px;flex-wrap:wrap;flex-shrink:0}
+.wbmi{display:flex;flex-direction:column;gap:2px}
+.wbml{font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.wbmv{font-size:.82rem;color:var(--text2);font-weight:500}
+.wbmv.age{color:var(--gold)}
+.cpbtn{background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-size:.76rem;padding:5px 10px;border-radius:var(--r-xs);transition:.2s;flex-shrink:0}
+.cpbtn:hover{color:var(--violet);border-color:var(--violet);background:var(--violet-dim)}
+
+/* STAT CARDS */
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.sc{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:22px 24px;position:relative;overflow:hidden;transition:.25s;cursor:default}
+.sc:hover{border-color:var(--border2);background:var(--glass2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.scglow{position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;opacity:.08;filter:blur(30px)}
+.sc:nth-child(1) .scglow{background:var(--violet)}.sc:nth-child(2) .scglow{background:var(--red)}.sc:nth-child(3) .scglow{background:var(--green)}.sc:nth-child(4) .scglow{background:var(--gold)}
+.sclabel{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.scdot{width:6px;height:6px;border-radius:50%}
+.sc:nth-child(1) .scdot{background:var(--violet)}.sc:nth-child(2) .scdot{background:var(--red)}.sc:nth-child(3) .scdot{background:var(--green)}.sc:nth-child(4) .scdot{background:var(--gold)}
+.scval{font-family:'Bricolage Grotesque',sans-serif;font-size:1.6rem;font-weight:800;line-height:1;color:var(--text);margin-bottom:6px;letter-spacing:-.02em}
+.scusd{font-size:.82rem;color:var(--green);font-weight:500;margin-bottom:5px}
+.scsub{font-size:.74rem;color:var(--text3)}
 
 /* TABS */
-.tabs-bar{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:28px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
-.tabs-bar::-webkit-scrollbar{display:none}
-.tab-btn{padding:12px 20px;background:transparent;border:none;color:var(--text3);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;transition:.2s;white-space:nowrap;position:relative;border-bottom:2px solid transparent;margin-bottom:-1px}
-.tab-btn:hover{color:var(--text2)}
-.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
-.tab-badge{background:var(--bg4);border:1px solid var(--border);color:var(--text3);font-size:.72rem;padding:1px 6px;border-radius:20px;margin-left:6px}
-.tab-btn.active .tab-badge{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
-.tab-panel{display:none}
-.tab-panel.active{display:block}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:28px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tbtn{padding:13px 22px;background:transparent;border:none;color:var(--text3);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;font-weight:600;transition:.2s;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:7px}
+.tbtn:hover{color:var(--text2)}.tbtn.active{color:var(--text);border-bottom-color:var(--violet)}
+.tbadge{background:var(--bg4);border:1px solid var(--border);color:var(--text3);font-size:.7rem;padding:1px 7px;border-radius:20px;font-family:'Fira Code',monospace}
+.tbtn.active .tbadge{background:var(--violet-dim);border-color:rgba(124,92,252,0.3);color:var(--violet)}
+.tp{display:none}.tp.active{display:block;animation:fadeUp .3s ease both}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.tl,.tr2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fi{padding:9px 14px;background:var(--glass);border:1px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;outline:none;transition:.2s;min-width:160px}
+.fi::placeholder{color:var(--text3)}
+.fi:focus{border-color:rgba(124,92,252,0.5);box-shadow:0 0 0 3px rgba(124,92,252,0.08)}
+select.fi{color:var(--text2);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2344446a' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
+.rc{font-size:.78rem;color:var(--text3)}
+.tbsm{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--glass);border:1px solid var(--border2);border-radius:var(--r-sm);color:var(--text2);cursor:pointer;font-size:.8rem;font-family:'Plus Jakarta Sans',sans-serif;transition:.2s}
+.tbsm:hover{border-color:var(--border3);color:var(--text)}
 
 /* TABLE */
-.table-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-.toolbar-left,.toolbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.filter-input{padding:8px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.84rem;outline:none;transition:.2s;min-width:160px}
-.filter-input::placeholder{color:var(--text3)}
-.filter-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-dim)}
-.filter-select{padding:8px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:.84rem;outline:none;cursor:pointer;transition:.2s;-webkit-appearance:none;appearance:none}
-.filter-select:focus{border-color:var(--accent)}
-.results-count{font-size:.82rem;color:var(--text3)}
-
-.data-table-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+.twrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse}
-thead{background:var(--bg3)}
-th{padding:12px 16px;text-align:left;font-size:.75rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;transition:.2s}
+thead tr{background:rgba(255,255,255,0.025)}
+th{padding:11px 16px;text-align:left;font-size:.7rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;transition:.15s}
 th:hover{color:var(--text2)}
-th.sort-asc::after{content:' ↑';color:var(--accent)}
-th.sort-desc::after{content:' ↓';color:var(--accent)}
-td{padding:13px 16px;border-bottom:1px solid var(--border);font-size:.86rem;color:var(--text2);vertical-align:middle}
+th.sort-asc::after{content:' ↑';color:var(--violet);font-size:.72rem}
+th.sort-desc::after{content:' ↓';color:var(--violet);font-size:.72rem}
+td{padding:14px 16px;border-bottom:1px solid var(--border);font-size:.84rem;color:var(--text2);vertical-align:middle}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:var(--bg3);color:var(--text)}
-.addr{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--text2)}
-.hash{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:5px}
-.hash:hover{text-decoration:underline}
-.copy-btn{background:none;border:none;cursor:pointer;color:var(--text3);font-size:.8rem;padding:2px 4px;border-radius:3px;transition:.2s}
-.copy-btn:hover{color:var(--accent);background:var(--accent-dim)}
-.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-.badge-in{background:var(--green-dim);color:var(--green)}
-.badge-out{background:var(--red-dim);color:var(--red)}
-.badge-self{background:var(--yellow-dim);color:var(--yellow)}
-.badge-fail{background:rgba(100,100,100,.15);color:#666}
-.val-pos{color:var(--green);font-weight:500}
-.val-neg{color:var(--red);font-weight:500}
-.val-neutral{color:var(--text2)}
+tr:hover td{background:rgba(255,255,255,0.018);color:var(--text)}
+.mono{font-family:'Fira Code',monospace;font-size:.8rem}
+.txlink{color:var(--violet);text-decoration:none;font-family:'Fira Code',monospace;font-size:.79rem;display:inline-flex;align-items:center;gap:4px}
+.txlink:hover{text-decoration:underline}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.bin{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,200,150,0.2)}
+.bout{background:var(--red-dim);color:var(--red);border:1px solid rgba(244,63,94,0.2)}
+.bself{background:rgba(245,166,35,0.1);color:var(--gold);border:1px solid rgba(245,166,35,0.2)}
+.bfail{background:rgba(100,100,130,0.1);color:#555577;border:1px solid rgba(100,100,130,0.15)}
+.vpos{color:var(--green);font-weight:600}.vneg{color:var(--red);font-weight:600}.vneu{color:var(--text2)}
+.vusd{font-size:.73rem;color:var(--text3);display:block;margin-top:2px}
+.cp2{background:none;border:none;cursor:pointer;color:var(--text3);font-size:.75rem;padding:3px 6px;border-radius:4px;transition:.15s}
+.cp2:hover{color:var(--violet);background:var(--violet-dim)}
+.tempty{padding:52px;text-align:center;color:var(--text3);font-size:.88rem}
 
 /* PAGINATION */
-.pagination{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:20px}
-.page-btn{padding:7px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-xs);color:var(--text2);cursor:pointer;font-size:.84rem;transition:.2s;font-family:'DM Sans',sans-serif}
-.page-btn:hover{border-color:var(--border3);color:var(--text)}
-.page-btn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:600}
-.page-btn:disabled{opacity:.4;cursor:not-allowed}
-.page-info{font-size:.82rem;color:var(--text3);padding:0 8px}
+.pag{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:22px;flex-wrap:wrap}
+.pb{padding:7px 12px;background:var(--glass);border:1px solid var(--border);border-radius:var(--r-xs);color:var(--text3);cursor:pointer;font-size:.82rem;transition:.15s;font-family:'Plus Jakarta Sans',sans-serif;min-width:36px;text-align:center}
+.pb:hover{border-color:var(--border3);color:var(--text)}.pb.active{background:var(--violet-dim);border-color:rgba(124,92,252,0.4);color:var(--violet);font-weight:700}.pb:disabled{opacity:.3;cursor:not-allowed}
+.pi{font-size:.78rem;color:var(--text3);padding:0 8px}
 
-/* WALLET LOOKUP */
-.lookup-search{display:flex;gap:10px;margin-bottom:24px}
-.lookup-search input{flex:1;padding:13px 18px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.88rem;outline:none;transition:.2s;letter-spacing:.02em}
-.lookup-search input::placeholder{font-family:'DM Sans',sans-serif;color:var(--text3);letter-spacing:0}
-.lookup-search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
-.search-btn{padding:13px 22px;background:var(--bg4);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:.2s;white-space:nowrap}
-.search-btn:hover{border-color:var(--accent);color:var(--accent)}
+/* OVERVIEW */
+.ovgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.ovsec{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:22px}
+.ovhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.ovhdr h3{font-family:'Bricolage Grotesque',sans-serif;font-size:.95rem;font-weight:700}
+.seeall{background:none;border:none;color:var(--violet);cursor:pointer;font-size:.8rem;font-family:'Plus Jakarta Sans',sans-serif}
+.seeall:hover{text-decoration:underline}
+.rtxlist{display:flex;flex-direction:column;gap:6px}
+.rtx{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);transition:.15s}
+.rtx:hover{border-color:var(--border2);background:var(--bg4)}
+.rtxic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.rtxic.in{background:var(--green-dim);color:var(--green)}.rtxic.out{background:var(--red-dim);color:var(--red)}.rtxic.self{background:rgba(245,166,35,0.1);color:var(--gold)}
+.rtxinf{flex:1;min-width:0}
+.rtxpty{font-family:'Fira Code',monospace;font-size:.78rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rtxts{font-size:.72rem;color:var(--text3);margin-top:2px}
+.rtxv{text-align:right;flex-shrink:0}
+.rtxamt{font-size:.88rem;font-weight:600}
+.rtxusd{font-size:.72rem;color:var(--text3);margin-top:2px}
+.mstt{width:100%;border-collapse:collapse}
+.mstt td{padding:10px 0;border-bottom:1px solid var(--border);font-size:.84rem}
+.mstt tr:last-child td{border-bottom:none}
+.mstl{color:var(--text3)}.mstv{text-align:right;font-weight:600;font-family:'Fira Code',monospace;font-size:.81rem;color:var(--text)}
 
-.lookup-results{display:none}
-.lookup-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
-.lookup-stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;text-align:center}
-.lookup-stat .ls-label{font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
-.lookup-stat .ls-val{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800}
-.ls-val.sent{color:var(--red)}
-.ls-val.received{color:var(--green)}
-.ls-val.net-pos{color:var(--green)}
-.ls-val.net-neg{color:var(--red)}
-.ls-val.neutral{color:var(--text)}
+/* LOOKUP */
+.lksearch{display:flex;gap:8px;margin-bottom:22px}
+.lksearch input{flex:1;padding:12px 18px;background:var(--glass);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:'Fira Code',monospace;font-size:.87rem;outline:none;transition:.2s;letter-spacing:.02em}
+.lksearch input::placeholder{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text3);letter-spacing:0;font-size:.86rem}
+.lksearch input:focus{border-color:rgba(124,92,252,0.5);box-shadow:0 0 0 3px rgba(124,92,252,0.08)}
+.lkgo{padding:12px 22px;background:var(--glass2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:.84rem;transition:.2s;white-space:nowrap}
+.lkgo:hover{border-color:rgba(124,92,252,0.5);color:var(--violet);background:var(--violet-dim)}
+.lkres{display:none}
+.lkcards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.lkcard{background:var(--glass);border:1px solid var(--border);border-radius:var(--r-sm);padding:18px;text-align:center}
+.lkcl{font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);margin-bottom:8px;font-weight:600}
+.lkcv{font-family:'Bricolage Grotesque',sans-serif;font-size:1.2rem;font-weight:800}
+.lkcu{font-size:.74rem;color:var(--text3);margin-top:4px}
+.lkcv.sent{color:var(--red)}.lkcv.rcv{color:var(--green)}.lkcv.ntl{color:var(--text)}.lkcv.cnt{color:var(--violet)}
 
-/* BULK SUMMARY */
-.bulk-table td:nth-child(2){font-family:'JetBrains Mono',monospace;font-size:.8rem}
-.flow-bar-wrap{width:80px;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
-.flow-bar{height:100%;border-radius:3px;background:var(--accent)}
-
-/* SETTINGS MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.25s}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:32px;width:100%;max-width:520px;position:relative;transform:translateY(16px);transition:.25s}
-.modal-overlay.open .modal{transform:translateY(0)}
-.modal-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:6px}
-.modal-sub{color:var(--text3);font-size:.85rem;margin-bottom:24px}
-.form-group{margin-bottom:18px}
-.form-label{display:block;font-size:.82rem;font-weight:500;color:var(--text2);margin-bottom:7px}
-.form-input{width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.86rem;outline:none;transition:.2s;letter-spacing:.04em}
-.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
-.form-hint{font-size:.78rem;color:var(--text3);margin-top:6px}
-.form-hint a{color:var(--accent);text-decoration:none}
-.form-hint a:hover{text-decoration:underline}
-.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
-.btn-primary{padding:10px 24px;background:var(--accent);color:#000;border:none;border-radius:var(--r-sm);cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;transition:.2s}
-.btn-primary:hover{background:#00bde8;box-shadow:0 0 16px rgba(0,212,255,.4)}
-.btn-ghost{padding:10px 20px;background:transparent;color:var(--text2);border:1px solid var(--border2);border-radius:var(--r-sm);cursor:pointer;font-family:'DM Sans',sans-serif;transition:.2s}
-.btn-ghost:hover{border-color:var(--border3);color:var(--text)}
-.close-btn{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.1rem;line-height:1;padding:4px;transition:.2s}
-.close-btn:hover{color:var(--text)}
-
-/* WALLET ADDRESS DISPLAY */
-.wallet-display{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:24px;flex-wrap:wrap}
-.wallet-display .wd-label{font-size:.78rem;color:var(--text3);text-transform:uppercase;letter-spacing:.07em}
-.wallet-display .wd-addr{font-family:'JetBrains Mono',monospace;font-size:.88rem;color:var(--accent);flex:1;min-width:200px;word-break:break-all}
-.chain-tag{padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600;letter-spacing:.05em}
-.chain-tag.eth{background:rgba(98,126,234,.15);color:var(--eth-c);border:1px solid rgba(98,126,234,.3)}
-.chain-tag.bsc{background:rgba(240,185,11,.12);color:var(--bnb-c);border:1px solid rgba(240,185,11,.3)}
-.chain-tag.base{background:rgba(45,110,245,.15);color:var(--base-c);border:1px solid rgba(45,110,245,.3)}
-.chain-tag.solana{background:rgba(153,69,255,.15);color:var(--sol-c);border:1px solid rgba(153,69,255,.3)}
-
-/* EMPTY TABLE */
-.table-empty{padding:48px;text-align:center;color:var(--text3);font-size:.9rem}
+/* BULK FLOW BAR */
+.fw{width:72px;height:4px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-top:5px}
+.fb{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--violet),var(--gold))}
 
 /* TOAST */
-.toast{position:fixed;bottom:28px;right:28px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:12px 18px;font-size:.85rem;color:var(--text);z-index:2000;transform:translateY(80px);opacity:0;transition:.3s;pointer-events:none;max-width:320px}
+.toast{position:fixed;bottom:28px;right:28px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:13px 18px;font-size:.84rem;color:var(--text);z-index:9999;transform:translateY(80px);opacity:0;transition:.3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;max-width:320px}
 .toast.show{transform:translateY(0);opacity:1}
-.toast.success{border-color:var(--green);color:var(--green)}
-.toast.error{border-color:var(--red);color:var(--red)}
+.toast.success{border-color:rgba(0,200,150,0.3);background:rgba(0,200,150,0.05);color:var(--green)}
+.toast.error{border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.05);color:var(--red)}
 
-/* OVERVIEW RECENT */
-.recent-txns{display:flex;flex-direction:column;gap:8px}
-.rtx{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);transition:.2s;cursor:pointer}
-.rtx:hover{border-color:var(--border3);background:var(--bg4)}
-.rtx-dir{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
-.rtx-dir.in{background:var(--green-dim)}
-.rtx-dir.out{background:var(--red-dim)}
-.rtx-dir.self{background:var(--yellow-dim)}
-.rtx-info{flex:1;min-width:0}
-.rtx-party{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rtx-time{font-size:.75rem;color:var(--text3);margin-top:2px}
-.rtx-val{text-align:right;flex-shrink:0}
-.rtx-amount{font-weight:500;font-size:.9rem}
-.rtx-hash-link{font-size:.72rem;color:var(--text3);margin-top:2px;text-decoration:none}
-.rtx-hash-link:hover{color:var(--accent)}
+/* SETTINGS MODAL */
+.smodal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);z-index:1000;align-items:center;justify-content:center}
+.smodal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:34px;width:100%;max-width:500px;position:relative}
+.smodal-title{font-family:'Bricolage Grotesque',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:6px}
+.smodal-sub{color:var(--text3);font-size:.84rem;margin-bottom:24px}
+.sform-label{display:block;font-size:.8rem;font-weight:600;color:var(--text2);margin-bottom:8px}
+.sform-input{width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'Fira Code',monospace;font-size:.84rem;outline:none;transition:.2s;letter-spacing:.03em}
+.sform-input:focus{border-color:rgba(124,92,252,0.5);box-shadow:0 0 0 3px rgba(124,92,252,0.08)}
+.sform-hint{font-size:.76rem;color:var(--text3);margin-top:7px}
+.sform-hint a{color:var(--violet);text-decoration:none}.sform-hint a:hover{text-decoration:underline}
+.smodal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+.sbtn-ghost{padding:10px 20px;background:transparent;color:var(--text2);border:1px solid var(--border2);border-radius:var(--r-sm);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.84rem;transition:.2s}
+.sbtn-ghost:hover{border-color:var(--border3);color:var(--text)}
+.sbtn-primary{padding:10px 26px;background:linear-gradient(135deg,var(--violet),#5b3fd4);color:#fff;border:none;border-radius:var(--r-sm);cursor:pointer;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.88rem;transition:.2s;box-shadow:0 4px 16px rgba(124,92,252,0.3)}
+.sbtn-primary:hover{box-shadow:0 6px 24px rgba(124,92,252,0.45)}
+.sbtn-primary:disabled{opacity:.6;cursor:not-allowed}
+.sclosebtn{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.1rem;padding:4px 8px;transition:.2s;line-height:1}
+.sclosebtn:hover{color:var(--text)}
 
-/* TOKEN CARD */
-.token-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;background:var(--bg4);border:1px solid var(--border);border-radius:20px;font-size:.75rem;color:var(--text2)}
-.token-logo{width:16px;height:16px;border-radius:50%;background:var(--bg3)}
-
-/* SECTION HEADER */
-.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.section-hdr h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--text)}
-.see-all{font-size:.82rem;color:var(--accent);text-decoration:none;cursor:pointer;background:none;border:none}
-.see-all:hover{text-decoration:underline}
-
-/* RESPONSIVE */
-@media(max-width:768px){
-  .stats-row{grid-template-columns:repeat(2,1fr)}
-  .lookup-stats-row{grid-template-columns:repeat(2,1fr)}
-  .wallet-row{flex-direction:column}
-  .analyze-btn{width:100%}
-  header{flex-direction:column;align-items:flex-start;gap:12px}
-  .stat-value{font-size:1.3rem}
-}
-@media(max-width:480px){
-  .stats-row{grid-template-columns:1fr 1fr}
-}
+@media(max-width:900px){.sgrid{grid-template-columns:repeat(2,1fr)}.lkcards{grid-template-columns:repeat(2,1fr)}.ovgrid{grid-template-columns:1fr}}
+@media(max-width:600px){.sgrid{grid-template-columns:1fr 1fr}.hero h1{font-size:1.8rem}.price-bar{display:none}}
 </style>
 </head>
 <body>
-
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<!-- SETTINGS MODAL -->
+<div class="smodal-overlay" id="smodal">
+  <div class="smodal">
+    <button class="sclosebtn" onclick="closeSettings()">✕</button>
+    <div class="smodal-title">API Configuration</div>
+    <div class="smodal-sub">Connect your Moralis Web3 API key to fetch live blockchain data.</div>
+    <label class="sform-label">Moralis Web3 API Key</label>
+    <input class="sform-input" id="api-input" type="password" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." autocomplete="off">
+    <div class="sform-hint">Get your key at <a href="https://admin.moralis.io/api-keys" target="_blank">admin.moralis.io/api-keys</a> → copy the <strong style="color:var(--text2)">Web3 API Key</strong>. Free tier: 40k req/month, no credit card.</div>
+    <div class="smodal-actions">
+      <button class="sbtn-ghost" onclick="closeSettings()">Cancel</button>
+      <button class="sbtn-primary" id="save-key-btn" onclick="saveKey()">Save & Connect</button>
+    </div>
+  </div>
+</div>
+
 <div id="app">
-  <!-- Header -->
+
   <header>
     <div class="logo">
-      <div class="logo-hex">⬡</div>
-      Chain<span>Lens</span>
+      <div class="logo-mark">⬡</div>
+      <div class="logo-text">Chain<em>Lens</em></div>
     </div>
+    <div class="price-bar">
+      <div class="ppill" id="pill-eth"><span class="sym">ETH</span><span class="val" id="pp-eth">—</span></div>
+      <div class="ppill" id="pill-bnb"><span class="sym">BNB</span><span class="val" id="pp-bnb">—</span></div>
+      <div class="ppill" id="pill-sol"><span class="sym">SOL</span><span class="val" id="pp-sol">—</span></div>
+    </div>
+    <button class="hbtn" id="settings-btn">⚙ API Settings</button>
   </header>
 
-  <!-- Input Section -->
-  <div class="input-section">
-    <div class="section-label">Select Blockchain</div>
-    <div class="chain-selector">
-      <button class="chain-btn active" data-chain="eth"><div class="chain-dot"></div>Ethereum</button>
-      <button class="chain-btn" data-chain="bsc"><div class="chain-dot"></div>BNB Chain</button>
-      <button class="chain-btn" data-chain="base"><div class="chain-dot"></div>Base</button>
-      <button class="chain-btn" data-chain="solana"><div class="chain-dot"></div>Solana</button>
+  <div id="file-warning">
+    <strong>⚠ Opened via file:// — browser blocks API calls.</strong><br>
+    Serve from a local server instead:<br>
+    <strong style="color:var(--text2)">Python:</strong> <code>python -m http.server 8080</code> → open <code>http://localhost:8080/chainlens.html</code><br>
+    <strong style="color:var(--text2)">VS Code:</strong> Right-click file → <em>Open with Live Server</em><br>
+    <strong style="color:var(--text2)">Node:</strong> <code>npx serve .</code>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow"><div class="dot"></div>Multi-chain Wallet Intelligence</div>
+    <h1><span class="g">Decode any wallet.</span><br>Every chain, every dollar.</h1>
+    <p>Full transaction history, live USD values, wallet age &amp; per-address breakdowns — instantly.</p>
+    <div class="chain-row">
+      <button class="cpill active" data-chain="eth"><div class="cdot"></div>Ethereum</button>
+      <button class="cpill" data-chain="bsc"><div class="cdot"></div>BNB Chain</button>
+      <button class="cpill" data-chain="base"><div class="cdot"></div>Base</button>
+      <button class="cpill" data-chain="solana"><div class="cdot"></div>Solana</button>
     </div>
-    <div class="section-label">Wallet Address</div>
-    <div class="wallet-row">
-      <div class="wallet-input-wrap">
-        <input id="wallet-input" type="text" placeholder="Enter wallet address (0x... or Solana base58)">
-      </div>
-      <button class="analyze-btn" id="analyze-btn">Analyze Wallet →</button>
+    <div class="sbar">
+      <input id="wallet-input" type="text" placeholder="Enter wallet address  (0x... or Solana base58)">
+      <button class="gobtn" id="analyze-btn">Analyze →</button>
     </div>
   </div>
 
-  <!-- Empty State -->
   <div id="empty-state">
-    <div class="empty-icon">🔍</div>
-    <div class="empty-title">Analyze Any Wallet</div>
-    <div class="empty-sub">Enter a wallet address above to start analyzing transactions. Get totals, history, and per-wallet summaries in seconds.</div>
-    <div class="features-grid">
-      <div class="feature-card"><div class="fc-icon">📊</div><div class="fc-title">Full History</div><div class="fc-desc">Paginated transaction table with filters</div></div>
-      <div class="feature-card"><div class="fc-icon">🎯</div><div class="fc-title">Wallet Lookup</div><div class="fc-desc">Total sent &amp; received per counterparty</div></div>
-      <div class="feature-card"><div class="fc-icon">📦</div><div class="fc-title">Bulk Summary</div><div class="fc-desc">All wallets grouped by flow totals</div></div>
-      <div class="feature-card"><div class="fc-icon">🪙</div><div class="fc-title">Token &amp; NFT Transfers</div><div class="fc-desc">ERC-20 and NFT transfer history</div></div>
+    <div class="fgrid">
+      <div class="fcard"><div class="fi2">💰</div><div class="ft">Live USD Values</div><div class="fd">Every transaction shown in native token and real-time USD</div></div>
+      <div class="fcard"><div class="fi2">📅</div><div class="ft">Wallet Age &amp; Creation</div><div class="fd">See exactly when a wallet was first created on-chain</div></div>
+      <div class="fcard"><div class="fi2">🎯</div><div class="ft">Wallet Lookup</div><div class="fd">Total sent &amp; received between any two specific wallets</div></div>
+      <div class="fcard"><div class="fi2">📦</div><div class="ft">Bulk Summary</div><div class="fd">All counterparties ranked by volume with USD totals</div></div>
     </div>
   </div>
 
-  <!-- Loading State -->
   <div id="loading-state">
-    <div class="loading-spinner"></div>
-    <div class="loading-text">Fetching transactions...</div>
-    <div class="loading-progress" id="loading-progress"></div>
+    <div class="lring"></div>
+    <div class="ltxt" id="ltxt">Fetching on-chain data…</div>
+    <div class="lprog" id="lprog"></div>
   </div>
 
-  <!-- Error State -->
   <div id="error-state">
-    <div class="error-icon">⚠</div>
-    <div class="error-msg" id="error-msg">Something went wrong</div>
-    <div class="error-sub" id="error-sub">Please check your API key and wallet address, then try again.</div>
-    <button class="retry-btn" id="retry-btn">Try Again</button>
+    <div class="eicon">⚠️</div>
+    <div class="emsg" id="emsg">Something went wrong</div>
+    <div class="esub" id="esub"></div>
+    <button class="ertry" id="retry-btn">Try Again</button>
   </div>
 
-  <!-- Results -->
   <div id="results">
-    <!-- Wallet Display -->
-    <div class="wallet-display">
-      <span class="wd-label">Wallet</span>
-      <span class="wd-addr" id="display-wallet"></span>
-      <span class="chain-tag" id="display-chain-tag"></span>
-      <button class="copy-btn" id="copy-wallet-btn" title="Copy address">⎘ Copy</button>
+    <div class="wbanner">
+      <span class="wbchain" id="wb-chain">ETH</span>
+      <span class="wbaddr" id="wb-addr">—</span>
+      <div class="wbmeta">
+        <div class="wbmi"><span class="wbml">Created</span><span class="wbmv age" id="wb-created">—</span></div>
+        <div class="wbmi"><span class="wbml">Age</span><span class="wbmv" id="wb-age">—</span></div>
+        <div class="wbmi"><span class="wbml">Last Active</span><span class="wbmv" id="wb-last">—</span></div>
+      </div>
+      <button class="cpbtn" id="copy-addr-btn">⎘ Copy</button>
     </div>
 
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-label">Total Transactions</div>
-        <div class="stat-value" id="stat-total">—</div>
-        <div class="stat-sub" id="stat-total-sub">Native txns loaded</div>
-        <div class="stat-icon">📋</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Total Sent</div>
-        <div class="stat-value" id="stat-sent">—</div>
-        <div class="stat-sub" id="stat-sent-sub">outgoing value</div>
-        <div class="stat-icon">↗</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Total Received</div>
-        <div class="stat-value" id="stat-received">—</div>
-        <div class="stat-sub" id="stat-received-sub">incoming value</div>
-        <div class="stat-icon">↙</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Unique Wallets</div>
-        <div class="stat-value" id="stat-wallets">—</div>
-        <div class="stat-sub">counterparties interacted</div>
-        <div class="stat-icon">👥</div>
+    <div class="sgrid">
+      <div class="sc"><div class="scglow"></div><div class="sclabel"><div class="scdot"></div>Total Transactions</div><div class="scval" id="s-total">—</div><div class="scusd" id="s-total-usd" style="color:var(--text3)">—</div><div class="scsub" id="s-total-sub">—</div></div>
+      <div class="sc"><div class="scglow"></div><div class="sclabel"><div class="scdot"></div>Total Sent</div><div class="scval" id="s-sent">—</div><div class="scusd" id="s-sent-usd">—</div><div class="scsub" id="s-sent-sub">—</div></div>
+      <div class="sc"><div class="scglow"></div><div class="sclabel"><div class="scdot"></div>Total Received</div><div class="scval" id="s-recv">—</div><div class="scusd" id="s-recv-usd">—</div><div class="scsub" id="s-recv-sub">—</div></div>
+      <div class="sc"><div class="scglow"></div><div class="sclabel"><div class="scdot"></div>Unique Wallets</div><div class="scval" id="s-wallets">—</div><div class="scusd" id="s-wallets-usd" style="color:var(--text2)">—</div><div class="scsub" id="s-wallets-sub">—</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tbtn active" data-tab="overview">Overview</button>
+      <button class="tbtn" data-tab="history">History <span class="tbadge" id="b-history">0</span></button>
+      <button class="tbtn" data-tab="lookup">Wallet Lookup</button>
+      <button class="tbtn" data-tab="tokens">Token Transfers <span class="tbadge" id="b-tokens">0</span></button>
+      <button class="tbtn" data-tab="bulk">Bulk Summary <span class="tbadge" id="b-bulk">0</span></button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="tp active" id="tp-overview">
+      <div class="ovgrid">
+        <div class="ovsec"><div class="ovhdr"><h3>Recent Transactions</h3><button class="seeall" onclick="switchTab('history')">View all →</button></div><div class="rtxlist" id="ov-recent"></div></div>
+        <div class="ovsec"><div class="ovhdr"><h3>Wallet Summary</h3></div><table class="mstt" id="ov-summary"></table></div>
       </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="tabs-bar">
-      <button class="tab-btn active" data-tab="overview">Overview</button>
-      <button class="tab-btn" data-tab="history">History <span class="tab-badge" id="badge-history">0</span></button>
-      <button class="tab-btn" data-tab="lookup">Wallet Lookup</button>
-      <button class="tab-btn" data-tab="tokens">Token Transfers <span class="tab-badge" id="badge-tokens">0</span></button>
-      <button class="tab-btn" data-tab="bulk">Bulk Summary</button>
-    </div>
-
-    <!-- OVERVIEW TAB -->
-    <div class="tab-panel active" id="tab-overview">
-      <div class="section-hdr">
-        <h3>Recent Transactions</h3>
-        <button class="see-all" onclick="switchTab('history')">See all →</button>
-      </div>
-      <div class="recent-txns" id="recent-txns-list"></div>
-    </div>
-
-    <!-- HISTORY TAB -->
-    <div class="tab-panel" id="tab-history">
-      <div class="table-toolbar">
-        <div class="toolbar-left">
-          <input class="filter-input" id="history-search" placeholder="🔍  Search address or hash..." style="min-width:220px">
-          <select class="filter-select" id="history-dir">
-            <option value="all">All Directions</option>
-            <option value="in">Received (IN)</option>
-            <option value="out">Sent (OUT)</option>
-          </select>
-          <select class="filter-select" id="history-status">
-            <option value="all">All Status</option>
-            <option value="success">Success</option>
-            <option value="fail">Failed</option>
-          </select>
+    <!-- HISTORY -->
+    <div class="tp" id="tp-history">
+      <div class="toolbar">
+        <div class="tl">
+          <input class="fi" id="f-search" placeholder="🔍  Search address or hash…" style="min-width:200px">
+          <select class="fi" id="f-dir"><option value="all">All Directions</option><option value="in">Received (IN)</option><option value="out">Sent (OUT)</option></select>
+          <select class="fi" id="f-status"><option value="all">All Status</option><option value="success">Success</option><option value="fail">Failed</option></select>
         </div>
-        <div class="toolbar-right">
-          <span class="results-count" id="history-count"></span>
-          <button class="icon-btn" id="export-csv-btn">⬇ Export CSV</button>
-        </div>
+        <div class="tr2"><span class="rc" id="h-count"></span><button class="tbsm" id="exp-hist">⬇ Export CSV</button></div>
       </div>
-      <div class="data-table-wrap">
-        <table id="history-table">
-          <thead><tr>
-            <th data-sort="block_timestamp">Date ↓</th>
-            <th>Direction</th>
-            <th>TX Hash</th>
-            <th data-sort="counterparty">Counterparty</th>
-            <th data-sort="valueEth">Amount</th>
-            <th>Status</th>
-          </tr></thead>
-          <tbody id="history-tbody"></tbody>
+      <div class="twrap">
+        <table id="hist-tbl">
+          <thead><tr><th data-sort="block_timestamp">Date</th><th>Direction</th><th>TX Hash</th><th data-sort="counterparty">Counterparty</th><th data-sort="valueEth">Amount</th><th>Status</th></tr></thead>
+          <tbody id="hist-body"></tbody>
         </table>
       </div>
-      <div class="pagination" id="history-pagination"></div>
+      <div class="pag" id="hist-pag"></div>
     </div>
 
-    <!-- WALLET LOOKUP TAB -->
-    <div class="tab-panel" id="tab-lookup">
-      <div class="lookup-search">
-        <input id="lookup-input" type="text" placeholder="Enter wallet address to analyze (0x... or Solana base58)">
-        <button class="search-btn" id="lookup-search-btn">Search</button>
+    <!-- LOOKUP -->
+    <div class="tp" id="tp-lookup">
+      <div class="lksearch">
+        <input id="lk-input" placeholder="Enter counterparty wallet address to analyze…">
+        <button class="lkgo" id="lk-btn">Search</button>
       </div>
-      <div class="lookup-results" id="lookup-results">
-        <div class="lookup-stats-row">
-          <div class="lookup-stat">
-            <div class="ls-label">Total Transactions</div>
-            <div class="ls-val neutral" id="lk-count">—</div>
-          </div>
-          <div class="lookup-stat">
-            <div class="ls-label">Total Sent</div>
-            <div class="ls-val sent" id="lk-sent">—</div>
-          </div>
-          <div class="lookup-stat">
-            <div class="ls-label">Total Received</div>
-            <div class="ls-val received" id="lk-received">—</div>
-          </div>
-          <div class="lookup-stat">
-            <div class="ls-label">Net Flow</div>
-            <div class="ls-val" id="lk-net">—</div>
-          </div>
+      <div class="lkres" id="lk-results">
+        <div class="lkcards">
+          <div class="lkcard"><div class="lkcl">Transactions</div><div class="lkcv cnt" id="lk-cnt">—</div></div>
+          <div class="lkcard"><div class="lkcl">You Sent</div><div class="lkcv sent" id="lk-sent">—</div><div class="lkcu" id="lk-sent-usd"></div></div>
+          <div class="lkcard"><div class="lkcl">You Received</div><div class="lkcv rcv" id="lk-recv">—</div><div class="lkcu" id="lk-recv-usd"></div></div>
+          <div class="lkcard"><div class="lkcl">Net Flow</div><div class="lkcv ntl" id="lk-net">—</div><div class="lkcu" id="lk-net-usd"></div></div>
         </div>
-        <div class="data-table-wrap">
-          <table>
-            <thead><tr>
-              <th>Date</th>
-              <th>Direction</th>
-              <th>TX Hash</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr></thead>
-            <tbody id="lookup-tbody"></tbody>
-          </table>
-        </div>
+        <div class="twrap"><table><thead><tr><th>Date</th><th>Direction</th><th>TX Hash</th><th>Amount</th><th>Status</th></tr></thead><tbody id="lk-body"></tbody></table></div>
       </div>
     </div>
 
-    <!-- TOKENS TAB -->
-    <div class="tab-panel" id="tab-tokens">
-      <div class="table-toolbar">
-        <div class="toolbar-left">
-          <input class="filter-input" id="tokens-search" placeholder="🔍  Search token or address...">
-          <select class="filter-select" id="tokens-dir">
-            <option value="all">All</option>
-            <option value="in">Received</option>
-            <option value="out">Sent</option>
-          </select>
-        </div>
-        <div class="toolbar-right">
-          <span class="results-count" id="tokens-count"></span>
-        </div>
+    <!-- TOKENS -->
+    <div class="tp" id="tp-tokens">
+      <div class="toolbar">
+        <div class="tl"><input class="fi" id="ft-search" placeholder="🔍  Search token or address…"><select class="fi" id="ft-dir"><option value="all">All</option><option value="in">Received</option><option value="out">Sent</option></select></div>
+        <div class="tr2"><span class="rc" id="t-count"></span></div>
       </div>
-      <div class="data-table-wrap">
-        <table id="tokens-table">
-          <thead><tr>
-            <th>Date</th>
-            <th>Direction</th>
-            <th>Token</th>
-            <th>From</th>
-            <th>To</th>
-            <th>Amount</th>
-            <th>TX Hash</th>
-          </tr></thead>
-          <tbody id="tokens-tbody"></tbody>
-        </table>
-      </div>
-      <div class="pagination" id="tokens-pagination"></div>
+      <div class="twrap"><table><thead><tr><th>Date</th><th>Direction</th><th>Token</th><th>From</th><th>To</th><th>Amount</th><th>TX Hash</th></tr></thead><tbody id="tok-body"></tbody></table></div>
+      <div class="pag" id="tok-pag"></div>
     </div>
 
-    <!-- BULK SUMMARY TAB -->
-    <div class="tab-panel" id="tab-bulk">
-      <div class="table-toolbar">
-        <div class="toolbar-left">
-          <input class="filter-input" id="bulk-search" placeholder="🔍  Search wallet...">
-          <select class="filter-select" id="bulk-sort">
-            <option value="txns">Sort: Most Txns</option>
-            <option value="sent">Sort: Most Sent</option>
-            <option value="received">Sort: Most Received</option>
-            <option value="recent">Sort: Most Recent</option>
-          </select>
+    <!-- BULK -->
+    <div class="tp" id="tp-bulk">
+      <div class="toolbar">
+        <div class="tl">
+          <input class="fi" id="fb-search" placeholder="🔍  Search wallet…">
+          <select class="fi" id="fb-sort"><option value="txns">Sort: Most Txns</option><option value="sent">Sort: Most Sent</option><option value="received">Sort: Most Received</option><option value="recent">Sort: Most Recent</option></select>
         </div>
-        <div class="toolbar-right">
-          <span class="results-count" id="bulk-count"></span>
-          <button class="icon-btn" id="export-bulk-btn">⬇ Export CSV</button>
-        </div>
+        <div class="tr2"><span class="rc" id="b-count"></span><button class="tbsm" id="exp-bulk">⬇ Export CSV</button></div>
       </div>
-      <div class="data-table-wrap">
-        <table id="bulk-table">
-          <thead><tr>
-            <th>#</th>
-            <th>Wallet Address</th>
-            <th data-sort="txns">Txns</th>
-            <th data-sort="sent">Total Sent</th>
-            <th data-sort="received">Total Received</th>
-            <th>Net Flow</th>
-            <th>Last Activity</th>
-          </tr></thead>
-          <tbody id="bulk-tbody"></tbody>
-        </table>
-      </div>
-      <div class="pagination" id="bulk-pagination"></div>
+      <div class="twrap"><table id="bulk-tbl"><thead><tr><th>#</th><th>Wallet</th><th>Txns</th><th>Sent</th><th>Received</th><th>Net Flow</th><th>Last Active</th></tr></thead><tbody id="bulk-body"></tbody></table></div>
+      <div class="pag" id="bulk-pag"></div>
     </div>
-  </div><!-- /#results -->
-</div><!-- /#app -->
+  </div>
+</div>
 
 <script>
-// ─────────────────────────────────────────────
-// CONFIG
-// ─────────────────────────────────────────────
-const CHAINS = {
-  eth:    { name:'Ethereum',  symbol:'ETH', decimals:18, color:'#627eea', explorer:'https://etherscan.io',   isEVM:true  },
-  bsc:    { name:'BNB Chain', symbol:'BNB', decimals:18, color:'#f0b90b', explorer:'https://bscscan.com',    isEVM:true  },
-  base:   { name:'Base',      symbol:'ETH', decimals:18, color:'#2d6ef5', explorer:'https://basescan.org',   isEVM:true  },
-  solana: { name:'Solana',    symbol:'SOL', decimals:9,  color:'#9945ff', explorer:'https://solscan.io',     isEVM:false }
+// ── CONFIG ──────────────────────────────────────────────
+const CHAINS={
+  eth:   {name:'Ethereum', sym:'ETH',dec:18,id:'0x1',   exp:'https://etherscan.io', isEVM:true},
+  bsc:   {name:'BNB Chain',sym:'BNB',dec:18,id:'0x38',  exp:'https://bscscan.com',  isEVM:true},
+  base:  {name:'Base',     sym:'ETH',dec:18,id:'0x2105',exp:'https://basescan.org', isEVM:true},
+  solana:{name:'Solana',   sym:'SOL',dec:9, id:'main',  exp:'https://solscan.io',   isEVM:false},
+};
+const EVM='https://deep-index.moralis.io/api/v2.2';
+const SOL='https://solana-gateway.moralis.io';
+const PER=20;
+
+let S={
+  apiKey:localStorage.getItem('cl_key')||'',
+  wallet:'',chain:'eth',txns:[],tokens:[],
+  prices:{eth:0,bnb:0,sol:0},
+  histPage:1,tokPage:1,bulkPage:1,
+  histSort:{f:'block_timestamp',d:'desc'},lastQ:null,
 };
 
-const EVM_BASE  = 'https://deep-index.moralis.io/api/v2.2';
-const SOL_BASE  = 'https://solana-gateway.moralis.io';
-const PER_PAGE  = 20;
+// ── PRICES ───────────────────────────────────────────────
+async function fetchPrices(){
+  try{
+    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum,binancecoin,solana&vs_currencies=usd');
+    if(!r.ok)return;
+    const d=await r.json();
+    S.prices={eth:d.ethereum?.usd||0,bnb:d.binancecoin?.usd||0,sol:d.solana?.usd||0};
+    const f=v=>v?'$'+v.toLocaleString('en-US',{maximumFractionDigits:2}):'—';
+    setEl('pp-eth',f(S.prices.eth));setEl('pp-bnb',f(S.prices.bnb));setEl('pp-sol',f(S.prices.sol));
+    document.querySelectorAll('.ppill').forEach(p=>p.classList.add('live'));
+  }catch(_){}
+}
+function getP(){return S.chain==='eth'||S.chain==='base'?S.prices.eth:S.chain==='bsc'?S.prices.bnb:S.prices.sol;}
+function toUSD(n){
+  const p=getP();if(!p||!n)return null;
+  const v=n*p;
+  if(v<0.01)return '<$0.01';
+  if(v<1000)return '$'+v.toFixed(2);
+  if(v<1e6)return '$'+v.toLocaleString('en-US',{maximumFractionDigits:0});
+  return '$'+(v/1e6).toFixed(2)+'M';
+}
 
-// ─────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────
-let S = {
-  apiKey:       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjAxMjc2YTk1LTU1NjYtNGJjOC1hNGIyLWNiNzVkMzdhMDZlNyIsIm9yZ0lkIjoiNTA2MjEwIiwidXNlcklkIjoiNTIwODYxIiwidHlwZUlkIjoiNzI1ZmFiNDAtMzJiMy00OTAxLWI5MjAtODg1MWVjYWFlNmRkIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3NzM5NTQ0NzYsImV4cCI6NDkyOTcxNDQ3Nn0.qCkpsnRzoO6twErI_83feuhh-AfeOqq65t2H4Ztyqsw',
-  wallet:       '',
-  chain:        'eth',
-  txns:         [],
-  tokens:       [],
-  activeTab:    'overview',
-  histPage:     1,
-  tokensPage:   1,
-  bulkPage:     1,
-  histSort:     { field:'block_timestamp', dir:'desc' },
-  lastQuery:    null,
-};
+// ── HELPERS ──────────────────────────────────────────────
+function fmtN(v,s){
+  if(!v||v===0)return '0 '+s;
+  if(v<1e-6)return '<0.000001 '+s;
+  if(v<0.0001)return v.toFixed(8)+' '+s;
+  if(v<1)return v.toFixed(6)+' '+s;
+  if(v<1000)return v.toFixed(4)+' '+s;
+  return v.toLocaleString('en-US',{maximumFractionDigits:2})+' '+s;
+}
+function raw(w,d=18){if(!w)return 0;return parseFloat(w)/Math.pow(10,d);}
+function trunc(a,s=6,e=4){if(!a)return '—';return a.slice(0,s)+'…'+a.slice(-e);}
+function fmtDate(ts){
+  if(!ts)return '—';const d=new Date(ts);
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+function ago(ts){
+  if(!ts)return '—';
+  const s=Math.floor((Date.now()-new Date(ts))/1000);
+  if(s<60)return s+'s ago';if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';
+  if(s<86400*30)return Math.floor(s/86400)+'d ago';
+  if(s<86400*365)return Math.floor(s/2592000)+'mo ago';
+  return Math.floor(s/31536000)+'y ago';
+}
+function walletAge(ts){
+  if(!ts)return '—';
+  const d=Math.floor((Date.now()-new Date(ts))/86400000);
+  if(d<1)return 'Today';if(d<30)return d+' days';
+  if(d<365)return Math.floor(d/30)+' months';
+  const y=Math.floor(d/365),m=Math.floor((d%365)/30);
+  return y+'y'+(m?' '+m+'mo':'');
+}
+function setEl(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.className='toast '+(type||'');t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3000);
+}
 
-// ─────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────
-function fmt(weiVal, decimals=18, symbol='ETH') {
-  if (!weiVal || weiVal === '0') return '0 '+symbol;
-  const v = parseFloat(weiVal) / Math.pow(10, decimals);
-  if (v === 0) return '0 '+symbol;
-  if (v < 0.000001) return '< 0.000001 '+symbol;
-  if (v < 0.0001)   return v.toFixed(8)+' '+symbol;
-  if (v < 1)        return v.toFixed(6)+' '+symbol;
-  if (v < 1000)     return v.toFixed(4)+' '+symbol;
-  return v.toLocaleString('en-US',{maximumFractionDigits:2})+' '+symbol;
-}
-function fmtRaw(weiVal, decimals=18) {
-  if (!weiVal) return 0;
-  return parseFloat(weiVal) / Math.pow(10, decimals);
-}
-function trunc(addr, s=6, e=4) {
-  if (!addr) return '—';
-  return addr.slice(0,s)+'…'+addr.slice(-e);
-}
-function fmtDate(ts) {
-  if (!ts) return '—';
-  const d = new Date(ts);
-  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})
-       + ' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-}
-function timeAgo(ts) {
-  const sec = Math.floor((Date.now()-new Date(ts))/1000);
-  if (sec < 60)    return sec+'s ago';
-  if (sec < 3600)  return Math.floor(sec/60)+'m ago';
-  if (sec < 86400) return Math.floor(sec/3600)+'h ago';
-  return Math.floor(sec/86400)+'d ago';
-}
-function explorerTx(hash)  { return CHAINS[S.chain].explorer+'/tx/'+hash; }
-function explorerAddr(addr){ return CHAINS[S.chain].explorer+'/address/'+addr; }
-function setEl(id,v){ const el=document.getElementById(id); if(el) el.textContent=v; }
-function showToast(msg, type='') {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast '+(type||'');
-  t.classList.add('show');
-  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2800);
-}
-function isEVM(addr){ return addr && addr.startsWith('0x') && addr.length===42; }
-
-// ─────────────────────────────────────────────
-// API
-// ─────────────────────────────────────────────
-// Chain ID map for Moralis
-const CHAIN_IDS = { eth:'0x1', bsc:'0x38', base:'0x2105', solana:'mainnet' };
-
-async function moralisFetch(url, key) {
+// ── API ───────────────────────────────────────────────────
+async function apiFetch(url,key){
   let res;
-  try {
-    res = await fetch(url, { headers:{ 'X-API-Key': key, 'Accept': 'application/json' }});
-  } catch(netErr) {
-    throw new Error(`Network error — check your internet connection.\n(${netErr.message})`);
+  try{res=await fetch(url,{headers:{'X-API-Key':key,'Accept':'application/json'}});}
+  catch(e){throw new Error('Network error — check your internet. ('+e.message+')');}
+  let b;try{b=await res.json();}catch(_){b={};}
+  if(!res.ok){
+    const m=b.message||b.error||'HTTP '+res.status;
+    if(res.status===401||res.status===403)throw new Error('Invalid API key ('+res.status+'). Click ⚙ API Settings to re-enter your Moralis key.');
+    if(res.status===400)throw new Error('Bad request (400): '+m+' — wallet may be invalid for this chain.');
+    if(res.status===429)throw new Error('Rate limit (429) — Moralis quota exceeded. Wait or upgrade.');
+    throw new Error('API error '+res.status+': '+m);
   }
-  let body;
-  try { body = await res.json(); } catch(_){ body = {}; }
-  if (!res.ok) {
-    const msg = body.message || body.error || body.details || `HTTP ${res.status} ${res.statusText}`;
-    if (res.status===401||res.status===403) throw new Error(`Invalid API key (${res.status}). Go to ⚙ API Settings and check your Moralis Web3 API key.`);
-    if (res.status===400) throw new Error(`Bad request (400): ${msg}\nWallet address may be invalid for this chain.`);
-    if (res.status===429) throw new Error(`Rate limit hit (429). You've exceeded your Moralis free tier quota.`);
-    throw new Error(`API error ${res.status}: ${msg}`);
-  }
-  return body;
+  return b;
 }
-
-async function fetchEVMTxns(addr, chain, key, onProg) {
-  const all=[]; let cursor=null, pages=0;
-  const chainId = CHAIN_IDS[chain]||chain;
-  do {
-    const p=new URLSearchParams({chain:chainId, limit:'100', order:'DESC'});
-    if(cursor) p.set('cursor',cursor);
-    const d = await moralisFetch(`${EVM_BASE}/${addr}?${p}`, key);
-    all.push(...(d.result||[]));
-    cursor=d.cursor||null; pages++;
-    if(onProg) onProg(all.length);
-  } while(cursor && all.length<2000 && pages<20);
+async function fetchEVMTxns(addr,chain,key,onP){
+  const all=[];let cur=null,pages=0;
+  do{
+    const p=new URLSearchParams({chain:CHAINS[chain].id,limit:'100',order:'DESC'});
+    if(cur)p.set('cursor',cur);
+    const d=await apiFetch(`${EVM}/${addr}?${p}`,key);
+    all.push(...(d.result||[]));cur=d.cursor||null;pages++;
+    if(onP)onP(all.length);
+  }while(cur&&all.length<2000&&pages<20);
   return all;
 }
-
-async function fetchEVMTokens(addr, chain, key) {
-  const all=[]; let cursor=null, pages=0;
-  const chainId = CHAIN_IDS[chain]||chain;
-  do {
-    const p=new URLSearchParams({chain:chainId, limit:'100'});
-    if(cursor) p.set('cursor',cursor);
-    let d;
-    try { d = await moralisFetch(`${EVM_BASE}/${addr}/erc20/transfers?${p}`, key); }
-    catch(_){ return all; }
-    all.push(...(d.result||[]));
-    cursor=d.cursor||null; pages++;
-  } while(cursor && all.length<1000 && pages<10);
+async function fetchEVMTok(addr,chain,key){
+  const all=[];let cur=null,pages=0;
+  do{
+    const p=new URLSearchParams({chain:CHAINS[chain].id,limit:'100'});
+    if(cur)p.set('cursor',cur);
+    let d;try{d=await apiFetch(`${EVM}/${addr}/erc20/transfers?${p}`,key);}catch(_){return all;}
+    all.push(...(d.result||[]));cur=d.cursor||null;pages++;
+  }while(cur&&all.length<1000&&pages<10);
   return all;
 }
-
-async function fetchSolTxns(addr, key) {
-  const d = await moralisFetch(`${SOL_BASE}/account/mainnet/${addr}/transactions?limit=100`, key);
-  return Array.isArray(d) ? d : (d.result||[]);
+async function fetchSolTxns(addr,key){
+  const d=await apiFetch(`${SOL}/account/mainnet/${addr}/transactions?limit=100`,key);
+  return Array.isArray(d)?d:(d.result||[]);
+}
+async function testKey(key){
+  try{await apiFetch(`${EVM}/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045/balance?chain=0x1`,key);return{ok:true};}
+  catch(e){return{ok:false,error:e.message};}
 }
 
-// ─────────────────────────────────────────────
-// UI STATE
-// ─────────────────────────────────────────────
-function showLoading(msg='Fetching transactions...', sub='') {
-  document.getElementById('empty-state').style.display='none';
-  document.getElementById('results').style.display='none';
-  document.getElementById('error-state').style.display='none';
-  const ls=document.getElementById('loading-state'); ls.style.display='block';
-  ls.querySelector('.loading-text').textContent=msg;
-  document.getElementById('loading-progress').textContent=sub;
-}
-function showError(msg, sub='') {
-  document.getElementById('loading-state').style.display='none';
-  document.getElementById('results').style.display='none';
-  document.getElementById('empty-state').style.display='none';
-  document.getElementById('error-state').style.display='block';
-  setEl('error-msg', msg); setEl('error-sub', sub);
-}
-function showResults() {
-  document.getElementById('loading-state').style.display='none';
-  document.getElementById('error-state').style.display='none';
-  document.getElementById('empty-state').style.display='none';
-  document.getElementById('results').style.display='block';
-}
-function showEmpty() {
-  document.getElementById('loading-state').style.display='none';
-  document.getElementById('error-state').style.display='none';
-  document.getElementById('results').style.display='none';
-  document.getElementById('empty-state').style.display='block';
+// ── UI STATES ─────────────────────────────────────────────
+function showState(id){
+  ['empty-state','loading-state','error-state','results'].forEach(x=>{
+    document.getElementById(x).style.display=x===id?'block':'none';
+  });
 }
 
-// ─────────────────────────────────────────────
-// MAIN ANALYZE
-// ─────────────────────────────────────────────
-async function analyze() {
-  const addr = document.getElementById('wallet-input').value.trim();
-  if (!addr) { showToast('Please enter a wallet address','error'); return; }
-  S.wallet=addr; S.chain=getChain(); S.histPage=1; S.tokensPage=1; S.bulkPage=1;
-  S.lastQuery={addr, chain:S.chain};
-
-  showLoading('Fetching transactions…','Loading page 1…');
+// ── ANALYZE ───────────────────────────────────────────────
+async function analyze(){
+  const addr=document.getElementById('wallet-input').value.trim();
+  if(!addr){showToast('Please enter a wallet address','error');return;}
+  if(!S.apiKey){openSettings();showToast('Set your Moralis API key first','error');return;}
+  S.wallet=addr;S.chain=document.querySelector('.cpill.active').dataset.chain;
+  S.histPage=1;S.tokPage=1;S.bulkPage=1;S.lastQ={addr,chain:S.chain};
   document.getElementById('analyze-btn').disabled=true;
-
-  try {
-    if (CHAINS[S.chain].isEVM) {
-      const [txns, tokens] = await Promise.all([
-        fetchEVMTxns(addr, S.chain, S.apiKey, (n)=>{
-          document.getElementById('loading-progress').textContent=`Loaded ${n} transactions…`;
-        }),
-        fetchEVMTokens(addr, S.chain, S.apiKey)
+  showState('loading-state');setEl('ltxt','Fetching on-chain data…');setEl('lprog','Starting…');
+  try{
+    if(CHAINS[S.chain].isEVM){
+      const [txns,tokens]=await Promise.all([
+        fetchEVMTxns(addr,S.chain,S.apiKey,n=>setEl('lprog','Loaded '+n+' transactions…')),
+        fetchEVMTok(addr,S.chain,S.apiKey)
       ]);
-      S.txns = txns.map(t=>({
-        ...t,
-        direction: t.from_address?.toLowerCase()===addr.toLowerCase() ? 'out' : 'in',
-        counterparty: t.from_address?.toLowerCase()===addr.toLowerCase() ? t.to_address : t.from_address,
-        valueEth: fmtRaw(t.value, CHAINS[S.chain].decimals),
-        isFailed: t.receipt_status==='0'
-      }));
-      S.tokens = tokens.map(t=>({
-        ...t,
-        direction: t.from_address?.toLowerCase()===addr.toLowerCase() ? 'out' : 'in',
-        tokenDecimals: parseInt(t.token_decimals)||18,
-        valueFormatted: fmtRaw(t.value, parseInt(t.token_decimals)||18)
-      }));
-    } else {
-      const txns = await fetchSolTxns(addr, S.apiKey);
-      S.txns = (Array.isArray(txns)?txns:[]).map(t=>({
-        hash: t.transactionId,
-        block_timestamp: t.blockTime ? new Date(t.blockTime*1000).toISOString() : null,
-        direction:'unknown',
-        counterparty:null,
-        value:'0',
-        valueEth:0,
-        isFailed: false,
-        fee: t.fee,
-        slot: t.slot,
-        isSolana:true
-      }));
+      const lo=addr.toLowerCase();
+      S.txns=txns.map(t=>({...t,direction:t.from_address?.toLowerCase()===lo?'out':'in',counterparty:t.from_address?.toLowerCase()===lo?t.to_address:t.from_address,valueEth:raw(t.value,CHAINS[S.chain].dec),isFailed:t.receipt_status==='0'}));
+      S.tokens=tokens.map(t=>({...t,direction:t.from_address?.toLowerCase()===lo?'out':'in',valFmt:raw(t.value,parseInt(t.token_decimals)||18)}));
+    }else{
+      const txns=await fetchSolTxns(addr,S.apiKey);
+      S.txns=(Array.isArray(txns)?txns:[]).map(t=>({hash:t.transactionId,block_timestamp:t.blockTime?new Date(t.blockTime*1000).toISOString():null,direction:'unknown',counterparty:null,value:'0',valueEth:0,isFailed:false,isSolana:true}));
       S.tokens=[];
     }
-    renderAll();
-    showResults();
-  } catch(e) {
-    const msg = e.message || 'Unknown error';
-    let sub = 'Check the details below and try again.';
-    if (msg.includes('API key') || msg.includes('401') || msg.includes('403'))
-      sub = '→ API key error. Please contact the site owner.';
-    else if (msg.includes('Network'))
-      sub = '→ You appear to be offline. Check your internet connection.';
-    else if (msg.includes('400') || msg.includes('invalid'))
-      sub = '→ The wallet address may be wrong or not valid for this chain.';
-    else if (msg.includes('429'))
-      sub = '→ Moralis free tier quota exceeded. Wait or upgrade your plan.';
-    showError(msg, sub);
-  } finally {
-    document.getElementById('analyze-btn').disabled=false;
-  }
+    renderAll();showState('results');
+  }catch(e){
+    const msg=e.message||'Unknown error';let sub='Check the details and try again.';
+    if(msg.includes('API key')||msg.includes('401')||msg.includes('403'))sub='→ Click ⚙ API Settings and re-enter your Moralis Web3 API key.';
+    else if(msg.includes('Network'))sub='→ You appear offline. Check your internet connection.';
+    else if(msg.includes('400'))sub='→ Wallet address may be wrong or invalid for this chain.';
+    else if(msg.includes('429'))sub='→ Moralis free quota exceeded. Wait a bit or upgrade your plan.';
+    showState('error-state');setEl('emsg',msg);setEl('esub',sub);
+  }finally{document.getElementById('analyze-btn').disabled=false;}
 }
 
-// ─────────────────────────────────────────────
-// RENDER
-// ─────────────────────────────────────────────
-function renderAll() {
-  const ch = CHAINS[S.chain];
-  // Wallet display
-  setEl('display-wallet', S.wallet);
-  const ct=document.getElementById('display-chain-tag');
-  ct.textContent=ch.name; ct.className='chain-tag '+S.chain;
-
-  // Stats
-  const outTxns = S.txns.filter(t=>t.direction==='out' && !t.isFailed);
-  const inTxns  = S.txns.filter(t=>t.direction==='in'  && !t.isFailed);
-  const totalSent     = outTxns.reduce((a,t)=>a+t.valueEth,0);
-  const totalReceived = inTxns.reduce((a,t)=>a+t.valueEth,0);
-  const counterparties = new Set(S.txns.map(t=>t.counterparty).filter(Boolean));
-
-  setEl('stat-total', S.txns.length.toLocaleString());
-  setEl('stat-total-sub', `${outTxns.length} sent · ${inTxns.length} received`);
-  setEl('stat-sent', fmtNum(totalSent, ch.symbol));
-  setEl('stat-sent-sub', `across ${outTxns.length} transactions`);
-  setEl('stat-received', fmtNum(totalReceived, ch.symbol));
-  setEl('stat-received-sub', `across ${inTxns.length} transactions`);
-  setEl('stat-wallets', counterparties.size.toLocaleString());
-
-  setEl('badge-history', S.txns.length);
-  setEl('badge-tokens', S.tokens.length);
-
-  renderOverview();
-  renderHistory();
-  renderTokens();
-  renderBulk();
-}
-
-function fmtNum(v, sym) {
-  if (v===0) return '0 '+sym;
-  if (v < 0.000001) return '< 0.000001 '+sym;
-  if (v < 0.0001)   return v.toFixed(8)+' '+sym;
-  if (v < 1)        return v.toFixed(6)+' '+sym;
-  if (v < 1000)     return v.toFixed(4)+' '+sym;
-  return v.toLocaleString('en-US',{maximumFractionDigits:2})+' '+sym;
-}
-
-function renderOverview() {
-  const list=document.getElementById('recent-txns-list');
-  const recent=S.txns.slice(0,10);
-  if(!recent.length){list.innerHTML='<div class="table-empty">No transactions found.</div>';return;}
+// ── RENDER ────────────────────────────────────────────────
+function renderAll(){
   const ch=CHAINS[S.chain];
-  list.innerHTML=recent.map(t=>{
+  setEl('wb-addr',S.wallet);
+  const wbc=document.getElementById('wb-chain');wbc.textContent=ch.name;wbc.className='wbchain '+S.chain;
+  const sorted=[...S.txns].filter(t=>t.block_timestamp).sort((a,b)=>new Date(a.block_timestamp)-new Date(b.block_timestamp));
+  const first=sorted[0]?.block_timestamp,last=sorted[sorted.length-1]?.block_timestamp;
+  setEl('wb-created',first?fmtDate(first):'—');setEl('wb-age',first?walletAge(first):'—');setEl('wb-last',last?ago(last):'—');
+  const outT=S.txns.filter(t=>t.direction==='out'&&!t.isFailed);
+  const inT=S.txns.filter(t=>t.direction==='in'&&!t.isFailed);
+  const sent=outT.reduce((a,t)=>a+t.valueEth,0);
+  const recv=inT.reduce((a,t)=>a+t.valueEth,0);
+  const cps=new Set(S.txns.map(t=>t.counterparty).filter(Boolean));
+  const net=recv-sent;
+  setEl('s-total',S.txns.length.toLocaleString());
+  setEl('s-total-usd',outT.length+' sent · '+inT.length+' received');
+  setEl('s-total-sub',S.tokens.length+' token transfers');
+  setEl('s-sent',fmtN(sent,ch.sym));
+  const su=toUSD(sent);setEl('s-sent-usd',su?'≈ '+su+' USD':'Price unavailable');
+  setEl('s-sent-sub','across '+outT.length+' transactions');
+  setEl('s-recv',fmtN(recv,ch.sym));
+  const ru=toUSD(recv);setEl('s-recv-usd',ru?'≈ '+ru+' USD':'Price unavailable');
+  setEl('s-recv-sub','across '+inT.length+' transactions');
+  setEl('s-wallets',cps.size.toLocaleString());
+  setEl('s-wallets-usd','Net: '+(net>=0?'+':'')+fmtN(net,ch.sym));
+  const nu=toUSD(Math.abs(net));setEl('s-wallets-sub',nu?'Net USD ≈ '+(net<0?'-':'')+nu:'—');
+  setEl('b-history',S.txns.length);setEl('b-tokens',S.tokens.length);
+  setEl('b-bulk',cps.size);
+  renderOverview();renderHistory();renderTokens();renderBulk();
+}
+
+function renderOverview(){
+  const ch=CHAINS[S.chain];
+  const el=document.getElementById('ov-recent');
+  const recent=S.txns.slice(0,8);
+  if(!recent.length){el.innerHTML='<div class="tempty">No transactions found.</div>';return;}
+  el.innerHTML=recent.map(t=>{
     const dir=t.isFailed?'self':t.direction;
     const icon=t.isFailed?'✗':t.direction==='in'?'↙':'↗';
-    const colorClass=t.isFailed?'self':t.direction;
-    const party=t.isSolana?(t.hash?trunc(t.hash,8,4):'—'):(t.counterparty?trunc(t.counterparty):trunc(t.hash));
-    const val=t.isSolana?'(Solana txn)':fmtNum(t.valueEth,ch.symbol);
-    const valClass=t.isFailed?'val-neutral':t.direction==='in'?'val-pos':'val-neg';
-    const link=t.hash?`<a class="rtx-hash-link" href="${CHAINS[S.chain].explorer}/tx/${t.hash}" target="_blank">${trunc(t.hash,10,6)}</a>`:'-';
-    return `<div class="rtx">
-      <div class="rtx-dir ${colorClass}">${icon}</div>
-      <div class="rtx-info">
-        <div class="rtx-party">${party}</div>
-        <div class="rtx-time">${t.block_timestamp?timeAgo(t.block_timestamp):'—'}</div>
-      </div>
-      <div class="rtx-val">
-        <div class="rtx-amount ${valClass}">${val}</div>
-        ${link}
-      </div>
-    </div>`;
+    const party=t.isSolana?trunc(t.hash||'',8,4):(t.counterparty?trunc(t.counterparty):trunc(t.hash));
+    const val=t.isSolana?'—':fmtN(t.valueEth,ch.sym);
+    const usd=t.isSolana?null:toUSD(t.valueEth);
+    const cls=t.isFailed?'vneu':t.direction==='in'?'vpos':'vneg';
+    return `<div class="rtx"><div class="rtxic ${dir}">${icon}</div><div class="rtxinf"><div class="rtxpty">${party}</div><div class="rtxts">${t.block_timestamp?ago(t.block_timestamp):'—'}</div></div><div class="rtxv"><div class="rtxamt ${cls}">${val}</div><div class="rtxusd">${usd?'≈ '+usd:''}</div></div></div>`;
   }).join('');
+  const sent=S.txns.filter(t=>t.direction==='out'&&!t.isFailed).reduce((a,t)=>a+t.valueEth,0);
+  const recv=S.txns.filter(t=>t.direction==='in'&&!t.isFailed).reduce((a,t)=>a+t.valueEth,0);
+  const p=getP();
+  const rows=[
+    ['Chain',ch.name],
+    ['Total Txns',S.txns.length.toLocaleString()],
+    ['Sent',fmtN(sent,ch.sym)+(p&&toUSD(sent)?` <small style="color:var(--text3)">≈ ${toUSD(sent)}</small>`:'')],
+    ['Received',fmtN(recv,ch.sym)+(p&&toUSD(recv)?` <small style="color:var(--text3)">≈ ${toUSD(recv)}</small>`:'')],
+    ['Net Flow',fmtN(recv-sent,ch.sym)+(p&&toUSD(Math.abs(recv-sent))?` <small style="color:var(--text3)">≈ ${recv-sent<0?'-':''}${toUSD(Math.abs(recv-sent))}</small>`:'')],
+    ['Failed Txns',S.txns.filter(t=>t.isFailed).length],
+    ['Unique Wallets',new Set(S.txns.map(t=>t.counterparty).filter(Boolean)).size],
+    ['Token Transfers',S.tokens.length],
+  ];
+  document.getElementById('ov-summary').innerHTML=rows.map(([l,v])=>`<tr><td class="mstl">${l}</td><td class="mstv">${v}</td></tr>`).join('');
 }
 
-function getFilteredHistory() {
-  const search=(document.getElementById('history-search')?.value||'').toLowerCase();
-  const dir=document.getElementById('history-dir')?.value||'all';
-  const status=document.getElementById('history-status')?.value||'all';
+function filtHist(){
+  const q=(document.getElementById('f-search')?.value||'').toLowerCase();
+  const dir=document.getElementById('f-dir')?.value||'all';
+  const st=document.getElementById('f-status')?.value||'all';
   return S.txns.filter(t=>{
-    if(dir!=='all'&&t.direction!==dir) return false;
-    if(status==='success'&&t.isFailed) return false;
-    if(status==='fail'&&!t.isFailed) return false;
-    if(search){
-      const s=search;
-      if(!((t.hash||'').toLowerCase().includes(s)||
-           (t.counterparty||'').toLowerCase().includes(s)||
-           (t.from_address||'').toLowerCase().includes(s)||
-           (t.to_address||'').toLowerCase().includes(s))) return false;
-    }
+    if(dir!=='all'&&t.direction!==dir)return false;
+    if(st==='success'&&t.isFailed)return false;if(st==='fail'&&!t.isFailed)return false;
+    if(q&&!((t.hash||'').toLowerCase().includes(q)||(t.counterparty||'').toLowerCase().includes(q)||(t.from_address||'').toLowerCase().includes(q)||(t.to_address||'').toLowerCase().includes(q)))return false;
     return true;
   }).sort((a,b)=>{
-    const f=S.histSort.field, d=S.histSort.dir==='asc'?1:-1;
-    if(f==='block_timestamp') return d*(new Date(a.block_timestamp)-new Date(b.block_timestamp));
-    if(f==='valueEth') return d*(a.valueEth-b.valueEth);
-    if(f==='counterparty') return d*((a.counterparty||'').localeCompare(b.counterparty||''));
+    const f=S.histSort.f,d=S.histSort.d==='asc'?1:-1;
+    if(f==='block_timestamp')return d*(new Date(a.block_timestamp)-new Date(b.block_timestamp));
+    if(f==='valueEth')return d*(a.valueEth-b.valueEth);
+    if(f==='counterparty')return d*((a.counterparty||'').localeCompare(b.counterparty||''));
     return 0;
   });
 }
 
-function renderHistory() {
-  const filtered=getFilteredHistory();
-  const total=filtered.length;
-  const pages=Math.max(1,Math.ceil(total/PER_PAGE));
-  S.histPage=Math.min(S.histPage,pages);
-  const slice=filtered.slice((S.histPage-1)*PER_PAGE, S.histPage*PER_PAGE);
-  const ch=CHAINS[S.chain];
-  setEl('history-count',`${total.toLocaleString()} transactions`);
-
-  const tbody=document.getElementById('history-tbody');
-  if(!slice.length){tbody.innerHTML=`<tr><td colspan="6"><div class="table-empty">No transactions found.</div></td></tr>`;renderPagination('history-pagination',0,1,1);return;}
-
-  tbody.innerHTML=slice.map(t=>{
-    const dir=t.direction==='in'?'<span class="badge badge-in">IN</span>':
-               t.direction==='out'?'<span class="badge badge-out">OUT</span>':
-               '<span class="badge badge-self">—</span>';
-    const status=t.isFailed?'<span class="badge badge-fail">FAILED</span>':'<span style="color:var(--text3);font-size:.78rem">✓</span>';
-    const hash=t.hash?`<a class="hash" href="${explorerTx(t.hash)}" target="_blank">${trunc(t.hash,8,6)} <span style="font-size:.7rem;opacity:.5">↗</span></a>`:'—';
-    const party=t.isSolana?'—':(t.counterparty?`<span class="addr">${trunc(t.counterparty)}</span><button class="copy-btn" onclick="copyText('${t.counterparty}')">⎘</button>`:'—');
-    const val=t.isSolana?'—':`<span class="${t.direction==='in'?'val-pos':t.direction==='out'?'val-neg':'val-neutral'}">${fmtNum(t.valueEth,ch.symbol)}</span>`;
-    return `<tr>
-      <td style="color:var(--text3);font-size:.8rem;white-space:nowrap">${fmtDate(t.block_timestamp)}</td>
-      <td>${dir}</td>
-      <td>${hash}</td>
-      <td>${party}</td>
-      <td>${val}</td>
-      <td>${status}</td>
-    </tr>`;
+function renderHistory(){
+  const ch=CHAINS[S.chain];const data=filtHist();const total=data.length;
+  const pages=Math.max(1,Math.ceil(total/PER));S.histPage=Math.min(S.histPage,pages);
+  const slice=data.slice((S.histPage-1)*PER,S.histPage*PER);
+  setEl('h-count',total.toLocaleString()+' transactions');
+  const tb=document.getElementById('hist-body');
+  if(!slice.length){tb.innerHTML='<tr><td colspan="6"><div class="tempty">No transactions match your filters.</div></td></tr>';renderPag('hist-pag',0,1,1);return;}
+  tb.innerHTML=slice.map(t=>{
+    const dir=t.direction==='in'?'<span class="badge bin">IN</span>':t.direction==='out'?'<span class="badge bout">OUT</span>':'<span class="badge bself">—</span>';
+    const status=t.isFailed?'<span class="badge bfail">FAILED</span>':'<span style="color:var(--text3);font-size:.78rem">✓</span>';
+    const hash=t.hash?`<a class="txlink" href="${CHAINS[S.chain].exp}/tx/${t.hash}" target="_blank">${trunc(t.hash,8,6)} ↗</a>`:'—';
+    const party=t.isSolana?'—':(t.counterparty?`<span class="mono">${trunc(t.counterparty)}</span><button class="cp2" onclick="copyText('${t.counterparty}')">⎘</button>`:'—');
+    const usd=toUSD(t.valueEth);
+    const val=t.isSolana?'—':`<span class="${t.direction==='in'?'vpos':t.direction==='out'?'vneg':'vneu'}">${fmtN(t.valueEth,ch.sym)}</span>${usd?`<span class="vusd">≈ ${usd}</span>`:''}`;
+    return `<tr><td style="color:var(--text3);font-size:.78rem;white-space:nowrap">${fmtDate(t.block_timestamp)}</td><td>${dir}</td><td>${hash}</td><td>${party}</td><td>${val}</td><td>${status}</td></tr>`;
   }).join('');
-
-  renderPagination('history-pagination', total, S.histPage, PER_PAGE, (p)=>{S.histPage=p;renderHistory();});
+  renderPag('hist-pag',total,S.histPage,PER,p=>{S.histPage=p;renderHistory();});
 }
 
-function renderTokens() {
-  const search=(document.getElementById('tokens-search')?.value||'').toLowerCase();
-  const dir=document.getElementById('tokens-dir')?.value||'all';
-  const filtered=S.tokens.filter(t=>{
-    if(dir!=='all'&&t.direction!==dir) return false;
-    if(search){
-      const s=search;
-      if(!((t.token_symbol||'').toLowerCase().includes(s)||
-           (t.token_name||'').toLowerCase().includes(s)||
-           (t.from_address||'').toLowerCase().includes(s)||
-           (t.to_address||'').toLowerCase().includes(s)||
-           (t.transaction_hash||'').toLowerCase().includes(s))) return false;
-    }
+function renderTokens(){
+  const q=(document.getElementById('ft-search')?.value||'').toLowerCase();
+  const dir=document.getElementById('ft-dir')?.value||'all';
+  const data=S.tokens.filter(t=>{
+    if(dir!=='all'&&t.direction!==dir)return false;
+    if(q&&!((t.token_symbol||'').toLowerCase().includes(q)||(t.token_name||'').toLowerCase().includes(q)||(t.from_address||'').toLowerCase().includes(q)||(t.to_address||'').toLowerCase().includes(q)||(t.transaction_hash||'').toLowerCase().includes(q)))return false;
     return true;
   });
-  const total=filtered.length;
-  const pages=Math.max(1,Math.ceil(total/PER_PAGE));
-  S.tokensPage=Math.min(S.tokensPage,pages);
-  const slice=filtered.slice((S.tokensPage-1)*PER_PAGE, S.tokensPage*PER_PAGE);
-  setEl('tokens-count',`${total.toLocaleString()} transfers`);
-
-  const tbody=document.getElementById('tokens-tbody');
-  if(!S.tokens.length){
-    if(!CHAINS[S.chain].isEVM){
-      tbody.innerHTML=`<tr><td colspan="7"><div class="table-empty">Token transfers not available for Solana in this view.</div></td></tr>`;
-    } else {
-      tbody.innerHTML=`<tr><td colspan="7"><div class="table-empty">No token transfers found for this wallet.</div></td></tr>`;
-    }
-    renderPagination('tokens-pagination',0,1,1);return;
-  }
-  if(!slice.length){tbody.innerHTML=`<tr><td colspan="7"><div class="table-empty">No transfers match your filter.</div></td></tr>`;renderPagination('tokens-pagination',0,1,1);return;}
-
-  tbody.innerHTML=slice.map(t=>{
-    const dir=t.direction==='in'?'<span class="badge badge-in">IN</span>':'<span class="badge badge-out">OUT</span>';
-    const token=`<span class="token-badge">${t.token_symbol||'?'}</span>`;
-    const val=fmtNum(t.valueFormatted, t.token_symbol||'?');
-    const hash=t.transaction_hash?`<a class="hash" href="${CHAINS[S.chain].explorer}/tx/${t.transaction_hash}" target="_blank">${trunc(t.transaction_hash,8,4)} ↗</a>`:'—';
-    return `<tr>
-      <td style="color:var(--text3);font-size:.8rem;white-space:nowrap">${fmtDate(t.block_timestamp)}</td>
-      <td>${dir}</td>
-      <td>${token}</td>
-      <td><span class="addr">${trunc(t.from_address)}</span></td>
-      <td><span class="addr">${trunc(t.to_address)}</span></td>
-      <td><span class="${t.direction==='in'?'val-pos':'val-neg'}">${val}</span></td>
-      <td>${hash}</td>
-    </tr>`;
+  const total=data.length;const pages=Math.max(1,Math.ceil(total/PER));
+  S.tokPage=Math.min(S.tokPage,pages);const slice=data.slice((S.tokPage-1)*PER,S.tokPage*PER);
+  setEl('t-count',total.toLocaleString()+' transfers');
+  const tb=document.getElementById('tok-body');
+  if(!S.tokens.length){tb.innerHTML=`<tr><td colspan="7"><div class="tempty">${CHAINS[S.chain].isEVM?'No token transfers found.':'Token transfers not available for Solana in this view.'}</div></td></tr>`;renderPag('tok-pag',0,1,1);return;}
+  if(!slice.length){tb.innerHTML='<tr><td colspan="7"><div class="tempty">No transfers match your filter.</div></td></tr>';renderPag('tok-pag',0,1,1);return;}
+  tb.innerHTML=slice.map(t=>{
+    const dir=t.direction==='in'?'<span class="badge bin">IN</span>':'<span class="badge bout">OUT</span>';
+    const tok=`<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:var(--bg4);border:1px solid var(--border);border-radius:20px;font-size:.74rem;color:var(--text2)">${t.token_symbol||'?'}</span>`;
+    const hash=t.transaction_hash?`<a class="txlink" href="${CHAINS[S.chain].exp}/tx/${t.transaction_hash}" target="_blank">${trunc(t.transaction_hash,8,4)} ↗</a>`:'—';
+    return `<tr><td style="color:var(--text3);font-size:.78rem;white-space:nowrap">${fmtDate(t.block_timestamp)}</td><td>${dir}</td><td>${tok}</td><td><span class="mono">${trunc(t.from_address)}</span></td><td><span class="mono">${trunc(t.to_address)}</span></td><td><span class="${t.direction==='in'?'vpos':'vneg'}">${fmtN(t.valFmt,t.token_symbol||'?')}</span></td><td>${hash}</td></tr>`;
   }).join('');
-  renderPagination('tokens-pagination', total, S.tokensPage, PER_PAGE, (p)=>{S.tokensPage=p;renderTokens();});
+  renderPag('tok-pag',total,S.tokPage,PER,p=>{S.tokPage=p;renderTokens();});
 }
 
-function getBulkData() {
+function getBulk(){
   const map={};
   S.txns.forEach(t=>{
-    const k=(t.counterparty||'').toLowerCase();
-    if(!k) return;
-    if(!map[k]) map[k]={addr:t.counterparty,txns:0,sent:0,received:0,lastTs:null};
+    const k=(t.counterparty||'').toLowerCase();if(!k)return;
+    if(!map[k])map[k]={addr:t.counterparty,txns:0,sent:0,recv:0,lastTs:null};
     map[k].txns++;
-    if(!t.isFailed){
-      if(t.direction==='out') map[k].sent+=t.valueEth;
-      if(t.direction==='in')  map[k].received+=t.valueEth;
-    }
-    if(t.block_timestamp){
-      if(!map[k].lastTs||new Date(t.block_timestamp)>new Date(map[k].lastTs))
-        map[k].lastTs=t.block_timestamp;
-    }
+    if(!t.isFailed){if(t.direction==='out')map[k].sent+=t.valueEth;if(t.direction==='in')map[k].recv+=t.valueEth;}
+    if(t.block_timestamp&&(!map[k].lastTs||new Date(t.block_timestamp)>new Date(map[k].lastTs)))map[k].lastTs=t.block_timestamp;
   });
   return Object.values(map);
 }
 
-function renderBulk() {
-  const search=(document.getElementById('bulk-search')?.value||'').toLowerCase();
-  const sortKey=document.getElementById('bulk-sort')?.value||'txns';
-  let data=getBulkData().filter(r=>!search||r.addr.toLowerCase().includes(search));
-  data.sort((a,b)=>{
-    if(sortKey==='txns')     return b.txns-a.txns;
-    if(sortKey==='sent')     return b.sent-a.sent;
-    if(sortKey==='received') return b.received-a.received;
-    if(sortKey==='recent')   return new Date(b.lastTs||0)-new Date(a.lastTs||0);
-    return 0;
-  });
-  const ch=CHAINS[S.chain];
-  const total=data.length;
-  const pages=Math.max(1,Math.ceil(total/PER_PAGE));
-  S.bulkPage=Math.min(S.bulkPage,pages);
-  const slice=data.slice((S.bulkPage-1)*PER_PAGE, S.bulkPage*PER_PAGE);
-  setEl('bulk-count',`${total.toLocaleString()} wallets`);
-
-  const tbody=document.getElementById('bulk-tbody');
-  if(!slice.length){tbody.innerHTML=`<tr><td colspan="7"><div class="table-empty">No data available.</div></td></tr>`;renderPagination('bulk-pagination',0,1,1);return;}
-
-  tbody.innerHTML=slice.map((r,i)=>{
-    const idx=(S.bulkPage-1)*PER_PAGE+i+1;
-    const net=r.received-r.sent;
-    const netStr=net>0?`<span class="val-pos">+${fmtNum(net,ch.symbol)}</span>`:
-                  net<0?`<span class="val-neg">${fmtNum(net,ch.symbol)}</span>`:
-                  `<span class="val-neutral">0</span>`;
-    const addrLink=`<a href="${explorerAddr(r.addr)}" target="_blank" class="addr" style="color:var(--accent);text-decoration:none;" title="${r.addr}">${trunc(r.addr,8,6)}</a>
-      <button class="copy-btn" onclick="copyText('${r.addr}')">⎘</button>`;
+function renderBulk(){
+  const q=(document.getElementById('fb-search')?.value||'').toLowerCase();
+  const sk=document.getElementById('fb-sort')?.value||'txns';
+  let data=getBulk().filter(r=>!q||r.addr.toLowerCase().includes(q));
+  data.sort((a,b)=>sk==='txns'?b.txns-a.txns:sk==='sent'?b.sent-a.sent:sk==='received'?b.recv-a.recv:new Date(b.lastTs||0)-new Date(a.lastTs||0));
+  const ch=CHAINS[S.chain];const maxV=data.reduce((m,r)=>Math.max(m,r.sent+r.recv),0);
+  const total=data.length;const pages=Math.max(1,Math.ceil(total/PER));
+  S.bulkPage=Math.min(S.bulkPage,pages);const slice=data.slice((S.bulkPage-1)*PER,S.bulkPage*PER);
+  setEl('b-count',total.toLocaleString()+' wallets');
+  const tb=document.getElementById('bulk-body');
+  if(!slice.length){tb.innerHTML='<tr><td colspan="7"><div class="tempty">No data available.</div></td></tr>';renderPag('bulk-pag',0,1,1);return;}
+  tb.innerHTML=slice.map((r,i)=>{
+    const idx=(S.bulkPage-1)*PER+i+1;
+    const net=r.recv-r.sent;
+    const su=toUSD(r.sent),ru=toUSD(r.recv),nu=toUSD(Math.abs(net));
+    const netH=net>0?`<span class="vpos">+${fmtN(net,ch.sym)}</span>`:net<0?`<span class="vneg">${fmtN(net,ch.sym)}</span>`:`<span class="vneu">0</span>`;
+    const pct=maxV>0?Math.min(100,((r.sent+r.recv)/maxV)*100):0;
     return `<tr>
-      <td style="color:var(--text3)">${idx}</td>
-      <td>${addrLink}</td>
-      <td style="font-weight:500">${r.txns}</td>
-      <td><span class="val-neg">${fmtNum(r.sent,ch.symbol)}</span></td>
-      <td><span class="val-pos">${fmtNum(r.received,ch.symbol)}</span></td>
-      <td>${netStr}</td>
-      <td style="color:var(--text3);font-size:.8rem">${r.lastTs?timeAgo(r.lastTs):'—'}</td>
+      <td style="color:var(--text3);font-size:.78rem">${idx}</td>
+      <td><div style="display:flex;align-items:center;gap:6px"><a href="${CHAINS[S.chain].exp}/address/${r.addr}" target="_blank" class="txlink mono" title="${r.addr}">${trunc(r.addr,8,6)}</a><button class="cp2" onclick="copyText('${r.addr}')">⎘</button></div><div class="fw" style="margin-top:5px"><div class="fb" style="width:${pct}%"></div></div></td>
+      <td style="font-weight:600">${r.txns}</td>
+      <td><span class="vneg">${fmtN(r.sent,ch.sym)}</span>${su?`<span class="vusd">≈ ${su}</span>`:''}</td>
+      <td><span class="vpos">${fmtN(r.recv,ch.sym)}</span>${ru?`<span class="vusd">≈ ${ru}</span>`:''}</td>
+      <td>${netH}${nu?`<span class="vusd">≈ ${net<0?'-':''}${nu}</span>`:''}</td>
+      <td style="color:var(--text3);font-size:.78rem">${r.lastTs?ago(r.lastTs):'—'}</td>
     </tr>`;
   }).join('');
-  renderPagination('bulk-pagination', total, S.bulkPage, PER_PAGE, (p)=>{S.bulkPage=p;renderBulk();});
+  renderPag('bulk-pag',total,S.bulkPage,PER,p=>{S.bulkPage=p;renderBulk();});
 }
 
-function renderWalletLookup(target) {
-  const addr=S.wallet.toLowerCase();
+function renderLookup(target){
+  const ch=CHAINS[S.chain];
   const txns=S.txns.filter(t=>(t.counterparty||'').toLowerCase()===target.toLowerCase());
-  const ch=CHAINS[S.chain];
-
-  if(!txns.length){
-    document.getElementById('lookup-results').style.display='none';
-    showToast('No transactions found with this wallet','error');
-    return;
-  }
-
+  if(!txns.length){document.getElementById('lk-results').style.display='none';showToast('No transactions found with this wallet','error');return;}
   const sent=txns.filter(t=>t.direction==='out'&&!t.isFailed).reduce((a,t)=>a+t.valueEth,0);
-  const received=txns.filter(t=>t.direction==='in'&&!t.isFailed).reduce((a,t)=>a+t.valueEth,0);
-  const net=received-sent;
-
-  setEl('lk-count', txns.length.toLocaleString());
-  setEl('lk-sent', fmtNum(sent,ch.symbol));
-  setEl('lk-received', fmtNum(received,ch.symbol));
-  const netEl=document.getElementById('lk-net');
-  netEl.textContent=fmtNum(Math.abs(net),ch.symbol);
-  netEl.className='ls-val '+(net>0?'net-pos':net<0?'net-neg':'neutral');
-
-  const tbody=document.getElementById('lookup-tbody');
-  tbody.innerHTML=txns.map(t=>{
-    const dir=t.direction==='in'?'<span class="badge badge-in">IN</span>':'<span class="badge badge-out">OUT</span>';
-    const hash=t.hash?`<a class="hash" href="${explorerTx(t.hash)}" target="_blank">${trunc(t.hash,8,6)} ↗</a>`:'—';
-    const val=`<span class="${t.direction==='in'?'val-pos':t.direction==='out'?'val-neg':'val-neutral'}">${fmtNum(t.valueEth,ch.symbol)}</span>`;
-    const status=t.isFailed?'<span class="badge badge-fail">FAIL</span>':'<span style="color:var(--text3);font-size:.78rem">✓</span>';
-    return `<tr>
-      <td style="color:var(--text3);font-size:.8rem;white-space:nowrap">${fmtDate(t.block_timestamp)}</td>
-      <td>${dir}</td><td>${hash}</td><td>${val}</td><td>${status}</td>
-    </tr>`;
+  const recv=txns.filter(t=>t.direction==='in'&&!t.isFailed).reduce((a,t)=>a+t.valueEth,0);
+  const net=recv-sent;
+  setEl('lk-cnt',txns.length.toLocaleString());
+  setEl('lk-sent',fmtN(sent,ch.sym));setEl('lk-sent-usd',toUSD(sent)?'≈ '+toUSD(sent)+' USD':'');
+  setEl('lk-recv',fmtN(recv,ch.sym));setEl('lk-recv-usd',toUSD(recv)?'≈ '+toUSD(recv)+' USD':'');
+  const ne=document.getElementById('lk-net');ne.textContent=fmtN(Math.abs(net),ch.sym);ne.className='lkcv '+(net>0?'rcv':net<0?'sent':'ntl');
+  setEl('lk-net-usd',toUSD(Math.abs(net))?'≈ '+(net<0?'-':'')+toUSD(Math.abs(net))+' USD':'');
+  const tb=document.getElementById('lk-body');
+  tb.innerHTML=txns.map(t=>{
+    const dir=t.direction==='in'?'<span class="badge bin">IN</span>':'<span class="badge bout">OUT</span>';
+    const hash=t.hash?`<a class="txlink" href="${CHAINS[S.chain].exp}/tx/${t.hash}" target="_blank">${trunc(t.hash,8,6)} ↗</a>`:'—';
+    const usd=toUSD(t.valueEth);
+    const val=`<span class="${t.direction==='in'?'vpos':t.direction==='out'?'vneg':'vneu'}">${fmtN(t.valueEth,ch.sym)}</span>${usd?`<span class="vusd">≈ ${usd}</span>`:''}`;
+    return `<tr><td style="color:var(--text3);font-size:.78rem;white-space:nowrap">${fmtDate(t.block_timestamp)}</td><td>${dir}</td><td>${hash}</td><td>${val}</td><td>${t.isFailed?'<span class="badge bfail">FAIL</span>':'<span style="color:var(--text3);font-size:.78rem">✓</span>'}</td></tr>`;
   }).join('');
-
-  document.getElementById('lookup-results').style.display='block';
+  document.getElementById('lk-results').style.display='block';
 }
 
-// ─────────────────────────────────────────────
-// PAGINATION
-// ─────────────────────────────────────────────
-function renderPagination(id, total, current, perPage, onClick) {
-  const pages=Math.max(1,Math.ceil(total/perPage));
-  const el=document.getElementById(id);
-  if(!el||pages<=1){if(el)el.innerHTML='';return;}
-
-  let html='';
-  html+=`<button class="page-btn" ${current<=1?'disabled':''} onclick="(${onClick.toString()})(${current-1})">‹</button>`;
-
-  let start=Math.max(1,current-2), end=Math.min(pages,current+2);
-  if(start>1) html+=`<button class="page-btn" onclick="(${onClick.toString()})(1)">1</button>`+(start>2?`<span class="page-info">…</span>`:'');
-  for(let p=start;p<=end;p++)
-    html+=`<button class="page-btn ${p===current?'active':''}" onclick="(${onClick.toString()})(${p})">${p}</button>`;
-  if(end<pages) html+=(end<pages-1?`<span class="page-info">…</span>`:'')+`<button class="page-btn" onclick="(${onClick.toString()})(${pages})">${pages}</button>`;
-  html+=`<button class="page-btn" ${current>=pages?'disabled':''} onclick="(${onClick.toString()})(${current+1})">›</button>`;
-  html+=`<span class="page-info">${current}/${pages}</span>`;
-  el.innerHTML=html;
+// ── PAGINATION ────────────────────────────────────────────
+function renderPag(id,total,cur,per,onClick){
+  const pages=Math.max(1,Math.ceil(total/per));
+  const el=document.getElementById(id);if(!el||pages<=1){if(el)el.innerHTML='';return;}
+  let h=`<button class="pb" ${cur<=1?'disabled':''} onclick="(${onClick.toString()})(${cur-1})">‹</button>`;
+  let s=Math.max(1,cur-2),e=Math.min(pages,cur+2);
+  if(s>1)h+=`<button class="pb" onclick="(${onClick.toString()})(1)">1</button>`+(s>2?`<span class="pi">…</span>`:'');
+  for(let p=s;p<=e;p++)h+=`<button class="pb ${p===cur?'active':''}" onclick="(${onClick.toString()})(${p})">${p}</button>`;
+  if(e<pages)h+=(e<pages-1?`<span class="pi">…</span>`:'')+`<button class="pb" onclick="(${onClick.toString()})(${pages})">${pages}</button>`;
+  h+=`<button class="pb" ${cur>=pages?'disabled':''} onclick="(${onClick.toString()})(${cur+1})">›</button>`;
+  h+=`<span class="pi">${cur} / ${pages}</span>`;
+  el.innerHTML=h;
 }
 
-// ─────────────────────────────────────────────
-// EXPORT CSV
-// ─────────────────────────────────────────────
-function exportCSV(data, filename) {
+// ── EXPORT ────────────────────────────────────────────────
+function exportCSV(data,fname){
   if(!data.length){showToast('No data to export','error');return;}
-  const keys=Object.keys(data[0]);
-  const csv=[keys.join(','),...data.map(r=>keys.map(k=>`"${(r[k]||'').toString().replace(/"/g,'""')}"`).join(','))].join('\n');
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download=filename; a.click();
+  const k=Object.keys(data[0]);
+  const csv=[k.join(','),...data.map(r=>k.map(x=>`"${(r[x]||'').toString().replace(/"/g,'""')}"`).join(','))].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=fname;a.click();
   showToast('CSV exported!','success');
 }
-
-function exportHistory() {
+function doExpHist(){
   const ch=CHAINS[S.chain];
-  exportCSV(getFilteredHistory().map(t=>({
-    date: fmtDate(t.block_timestamp),
-    direction: t.direction,
-    hash: t.hash||'',
-    from: t.from_address||'',
-    to: t.to_address||'',
-    value: t.valueEth,
-    symbol: ch.symbol,
-    status: t.isFailed?'failed':'success'
-  })), `chainlens_history_${S.wallet.slice(0,10)}.csv`);
+  exportCSV(filtHist().map(t=>({date:fmtDate(t.block_timestamp),direction:t.direction,hash:t.hash||'',from:t.from_address||'',to:t.to_address||'',value_native:t.valueEth,symbol:ch.sym,value_usd:toUSD(t.valueEth)||'',status:t.isFailed?'failed':'success'})),`chainlens_history_${S.wallet.slice(0,10)}.csv`);
 }
-function exportBulk() {
+function doExpBulk(){
   const ch=CHAINS[S.chain];
-  exportCSV(getBulkData().map(r=>({
-    wallet: r.addr,
-    transactions: r.txns,
-    total_sent: r.sent,
-    total_received: r.received,
-    net: r.received-r.sent,
-    symbol: ch.symbol,
-    last_activity: fmtDate(r.lastTs)
-  })), `chainlens_bulk_${S.wallet.slice(0,10)}.csv`);
+  exportCSV(getBulk().map(r=>({wallet:r.addr,transactions:r.txns,sent_native:r.sent,sent_usd:toUSD(r.sent)||'',received_native:r.recv,received_usd:toUSD(r.recv)||'',net_native:r.recv-r.sent,net_usd:toUSD(Math.abs(r.recv-r.sent))||'',symbol:ch.sym,last_activity:fmtDate(r.lastTs)})),`chainlens_bulk_${S.wallet.slice(0,10)}.csv`);
 }
 
-// ─────────────────────────────────────────────
-// COPY
-// ─────────────────────────────────────────────
-function copyText(text) {
-  navigator.clipboard.writeText(text).then(()=>showToast('Copied!','success')).catch(()=>{
-    const ta=document.createElement('textarea'); ta.value=text;
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta); showToast('Copied!','success');
+// ── SETTINGS ─────────────────────────────────────────────
+function openSettings(){const o=document.getElementById('smodal');o.style.display='flex';document.getElementById('api-input').value=S.apiKey;}
+function closeSettings(){document.getElementById('smodal').style.display='none';}
+async function saveKey(){
+  const k=document.getElementById('api-input').value.trim();
+  if(!k){showToast('Please enter your API key','error');return;}
+  const btn=document.getElementById('save-key-btn');btn.textContent='Testing…';btn.disabled=true;
+  const r=await testKey(k);btn.textContent='Save & Connect';btn.disabled=false;
+  if(!r.ok){showToast('Key test failed: '+r.error,'error');return;}
+  S.apiKey=k;localStorage.setItem('cl_key',k);closeSettings();showToast('Connected — API key saved!','success');
+}
+
+// ── TABS ─────────────────────────────────────────────────
+function switchTab(tab){
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.tp').forEach(p=>p.classList.toggle('active',p.id==='tp-'+tab));
+}
+
+// ── COPY ─────────────────────────────────────────────────
+function copyText(t){
+  navigator.clipboard.writeText(t).then(()=>showToast('Copied!','success')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('Copied!','success');
   });
 }
 
-// ─────────────────────────────────────────────
-// TABS
-// ─────────────────────────────────────────────
-function switchTab(tab) {
-  S.activeTab=tab;
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+tab));
-}
-function getChain(){ return S.chain; }
-
-
-// ─────────────────────────────────────────────
-// EVENT LISTENERS
-// ─────────────────────────────────────────────
+// ── INIT ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
+  if(window.location.protocol==='file:')document.getElementById('file-warning').style.display='block';
+  fetchPrices();setInterval(fetchPrices,60000);
 
-  // Chain buttons
-  document.querySelectorAll('.chain-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      document.querySelectorAll('.chain-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      S.chain=btn.dataset.chain;
-    });
+  document.querySelectorAll('.cpill').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.cpill').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');S.chain=b.dataset.chain;
+  }));
+  document.getElementById('analyze-btn').addEventListener('click',analyze);
+  document.getElementById('wallet-input').addEventListener('keydown',e=>{if(e.key==='Enter')analyze();});
+  document.getElementById('settings-btn').addEventListener('click',openSettings);
+  document.getElementById('smodal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSettings();});
+  document.querySelectorAll('.tbtn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+  ['f-search','f-dir','f-status'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.addEventListener('input',()=>{S.histPage=1;renderHistory();});
+    el.addEventListener('change',()=>{S.histPage=1;renderHistory();});
+  });
+  ['ft-search','ft-dir'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.addEventListener('input',()=>{S.tokPage=1;renderTokens();});
+    el.addEventListener('change',()=>{S.tokPage=1;renderTokens();});
+  });
+  ['fb-search','fb-sort'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.addEventListener('input',()=>{S.bulkPage=1;renderBulk();});
+    el.addEventListener('change',()=>{S.bulkPage=1;renderBulk();});
   });
 
-  // Analyze
-  document.getElementById('analyze-btn').addEventListener('click', analyze);
-  document.getElementById('wallet-input').addEventListener('keydown', e=>{ if(e.key==='Enter') analyze(); });
-
-  // Tabs
-  document.querySelectorAll('.tab-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>switchTab(btn.dataset.tab));
-  });
-
-  // Filters
-  ['history-search','history-dir','history-status'].forEach(id=>{
-    document.getElementById(id).addEventListener('input',()=>{S.histPage=1;renderHistory();});
-    document.getElementById(id).addEventListener('change',()=>{S.histPage=1;renderHistory();});
-  });
-  ['tokens-search','tokens-dir'].forEach(id=>{
-    document.getElementById(id).addEventListener('input',()=>{S.tokensPage=1;renderTokens();});
-    document.getElementById(id).addEventListener('change',()=>{S.tokensPage=1;renderTokens();});
-  });
-  ['bulk-search','bulk-sort'].forEach(id=>{
-    document.getElementById(id).addEventListener('input',()=>{S.bulkPage=1;renderBulk();});
-    document.getElementById(id).addEventListener('change',()=>{S.bulkPage=1;renderBulk();});
-  });
-
-  // Wallet Lookup
-  document.getElementById('lookup-search-btn').addEventListener('click',()=>{
-    const target=document.getElementById('lookup-input').value.trim();
-    if(!target){showToast('Enter a wallet address to look up','error');return;}
+  document.getElementById('lk-btn').addEventListener('click',()=>{
+    const t=document.getElementById('lk-input').value.trim();
+    if(!t){showToast('Enter a wallet address','error');return;}
     if(!S.txns.length){showToast('Analyze a wallet first','error');return;}
-    renderWalletLookup(target);
+    renderLookup(t);
   });
-  document.getElementById('lookup-input').addEventListener('keydown',e=>{
-    if(e.key==='Enter') document.getElementById('lookup-search-btn').click();
-  });
-
-  // Copy wallet
-  document.getElementById('copy-wallet-btn').addEventListener('click',()=>copyText(S.wallet));
-
-  // Export
-  document.getElementById('export-csv-btn').addEventListener('click', exportHistory);
-  document.getElementById('export-bulk-btn').addEventListener('click', exportBulk);
-
-  // Retry
+  document.getElementById('lk-input').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('lk-btn').click();});
+  document.getElementById('copy-addr-btn').addEventListener('click',()=>copyText(S.wallet));
+  document.getElementById('exp-hist').addEventListener('click',doExpHist);
+  document.getElementById('exp-bulk').addEventListener('click',doExpBulk);
   document.getElementById('retry-btn').addEventListener('click',()=>{
-    if(S.lastQuery){
-      document.getElementById('wallet-input').value=S.lastQuery.addr;
-      S.chain=S.lastQuery.chain;
-      document.querySelectorAll('.chain-btn').forEach(b=>{
-        b.classList.toggle('active',b.dataset.chain===S.chain);
-      });
-      analyze();
-    } else showEmpty();
+    if(S.lastQ){document.getElementById('wallet-input').value=S.lastQ.addr;S.chain=S.lastQ.chain;document.querySelectorAll('.cpill').forEach(b=>b.classList.toggle('active',b.dataset.chain===S.chain));analyze();}
+    else showState('empty-state');
   });
-
-  // Column sort for history
-  document.querySelectorAll('#history-table th[data-sort]').forEach(th=>{
+  document.querySelectorAll('#hist-tbl th[data-sort]').forEach(th=>{
     th.addEventListener('click',()=>{
-      const f=th.dataset.sort;
-      if(S.histSort.field===f) S.histSort.dir=S.histSort.dir==='asc'?'desc':'asc';
-      else { S.histSort.field=f; S.histSort.dir='desc'; }
-      document.querySelectorAll('#history-table th').forEach(h=>h.className='');
-      th.className='sort-'+S.histSort.dir;
-      S.histPage=1; renderHistory();
+      const f=th.dataset.sort;S.histSort.d=(S.histSort.f===f&&S.histSort.d==='desc')?'asc':'desc';S.histSort.f=f;
+      document.querySelectorAll('#hist-tbl th').forEach(h=>h.className='');th.className='sort-'+S.histSort.d;
+      S.histPage=1;renderHistory();
     });
   });
-
+  if(S.apiKey)showToast('API key loaded ✓','success');
 });
 </script>
 </body>
