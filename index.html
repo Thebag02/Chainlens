@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChainLens — Web3 Wallet Intelligence</title>
+<title>Traxr — Web3 Wallet Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -260,7 +260,7 @@ tr:hover td{background:rgba(255,255,255,0.018);color:var(--text)}
   <header>
     <div class="logo">
       <div class="logo-mark">⬡</div>
-      <div class="logo-text">Chain<em>Lens</em></div>
+      <div class="logo-text"><em>Traxr</em></div>
     </div>
     <div class="price-bar">
       <div class="ppill" id="pill-eth"><span class="sym">ETH</span><span class="val" id="pp-eth">—</span></div>
@@ -273,7 +273,7 @@ tr:hover td{background:rgba(255,255,255,0.018);color:var(--text)}
   <div id="file-warning">
     <strong>⚠ Opened via file:// — browser blocks API calls.</strong><br>
     Serve from a local server instead:<br>
-    <strong style="color:var(--text2)">Python:</strong> <code>python -m http.server 8080</code> → open <code>http://localhost:8080/chainlens.html</code><br>
+    <strong style="color:var(--text2)">Python:</strong> <code>python -m http.server 8080</code> → open <code>http://localhost:8080/traxr.html</code><br>
     <strong style="color:var(--text2)">VS Code:</strong> Right-click file → <em>Open with Live Server</em><br>
     <strong style="color:var(--text2)">Node:</strong> <code>npx serve .</code>
   </div>
@@ -789,11 +789,11 @@ function exportCSV(data,fname){
 }
 function doExpHist(){
   const ch=CHAINS[S.chain];
-  exportCSV(filtHist().map(t=>({date:fmtDate(t.block_timestamp),direction:t.direction,hash:t.hash||'',from:t.from_address||'',to:t.to_address||'',value_native:t.valueEth,symbol:ch.sym,value_usd:toUSD(t.valueEth)||'',status:t.isFailed?'failed':'success'})),`chainlens_history_${S.wallet.slice(0,10)}.csv`);
+  exportCSV(filtHist().map(t=>({date:fmtDate(t.block_timestamp),direction:t.direction,hash:t.hash||'',from:t.from_address||'',to:t.to_address||'',value_native:t.valueEth,symbol:ch.sym,value_usd:toUSD(t.valueEth)||'',status:t.isFailed?'failed':'success'})),`traxr_history_${S.wallet.slice(0,10)}.csv`);
 }
 function doExpBulk(){
   const ch=CHAINS[S.chain];
-  exportCSV(getBulk().map(r=>({wallet:r.addr,transactions:r.txns,sent_native:r.sent,sent_usd:toUSD(r.sent)||'',received_native:r.recv,received_usd:toUSD(r.recv)||'',net_native:r.recv-r.sent,net_usd:toUSD(Math.abs(r.recv-r.sent))||'',symbol:ch.sym,last_activity:fmtDate(r.lastTs)})),`chainlens_bulk_${S.wallet.slice(0,10)}.csv`);
+  exportCSV(getBulk().map(r=>({wallet:r.addr,transactions:r.txns,sent_native:r.sent,sent_usd:toUSD(r.sent)||'',received_native:r.recv,received_usd:toUSD(r.recv)||'',net_native:r.recv-r.sent,net_usd:toUSD(Math.abs(r.recv-r.sent))||'',symbol:ch.sym,last_activity:fmtDate(r.lastTs)})),`traxr_bulk_${S.wallet.slice(0,10)}.csv`);
 }
 
 // ── TABS ─────────────────────────────────────────────────
