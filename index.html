@@ -313,7 +313,7 @@ tr:hover td{background:rgba(255,255,255,0.018);color:var(--text)}
       <input id="wallet-input" type="text" placeholder="Paste any wallet address (0x... or Solana)">
       <button class="gobtn" id="analyze-btn">Scan All Chains →</button>
     </div>
-    <div class="scan-hint" id="scan-hint">🌐 All Networks — scans ETH, BNB, Base, Polygon, Arbitrum, Optimism, Avalanche, Fantom, Cronos, Linea + Solana</div>
+    <div class="scan-hint" id="scan-hint">🌐 All Networks — scans all 20 chains: ETH, BNB, Polygon, Arbitrum, Base, Optimism, Linea, Avalanche, Fantom, Cronos, Gnosis, Chiliz, Moonbeam, Moonriver, Flow, Ronin, Lisk, PulseChain, Sei, Monad + Solana</div>
   </div>
 
   <div id="empty-state">
@@ -388,14 +388,24 @@ tr:hover td{background:rgba(255,255,255,0.018);color:var(--text)}
             <option value="all">All Chains</option>
             <option value="eth">Ethereum</option>
             <option value="bsc">BNB Chain</option>
-            <option value="base">Base</option>
             <option value="polygon">Polygon</option>
             <option value="arbitrum">Arbitrum</option>
+            <option value="base">Base</option>
             <option value="optimism">Optimism</option>
+            <option value="linea">Linea</option>
             <option value="avalanche">Avalanche</option>
             <option value="fantom">Fantom</option>
             <option value="cronos">Cronos</option>
-            <option value="linea">Linea</option>
+            <option value="gnosis">Gnosis</option>
+            <option value="chiliz">Chiliz</option>
+            <option value="moonbeam">Moonbeam</option>
+            <option value="moonriver">Moonriver</option>
+            <option value="flow">Flow EVM</option>
+            <option value="ronin">Ronin</option>
+            <option value="lisk">Lisk</option>
+            <option value="pulse">PulseChain</option>
+            <option value="sei">Sei</option>
+            <option value="monad">Monad</option>
             <option value="sol">Solana</option>
           </select>
           <select class="fi" id="f-dir"><option value="all">All Directions</option><option value="in">Received (IN)</option><option value="out">Sent (OUT)</option></select>
@@ -472,24 +482,37 @@ tr:hover td{background:rgba(255,255,255,0.018);color:var(--text)}
 // ════════════════════════════════════════════════
 const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjAxMjc2YTk1LTU1NjYtNGJjOC1hNGIyLWNiNzVkMzdhMDZlNyIsIm9yZ0lkIjoiNTA2MjEwIiwidXNlcklkIjoiNTIwODYxIiwidHlwZUlkIjoiNzI1ZmFiNDAtMzJiMy00OTAxLWI5MjAtODg1MWVjYWFlNmRkIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3NzM5NTQ0NzYsImV4cCI6NDkyOTcxNDQ3Nn0.qCkpsnRzoO6twErI_83feuhh-AfeOqq65t2H4Ztyqsw';
 
-// All EVM chains Moralis supports
+// ALL chains with Moralis Data API support (mainnet only)
 const EVM_CHAINS = {
-  eth:     {name:'Ethereum',  sym:'ETH',   dec:18, id:'0x1',    exp:'https://etherscan.io',          priceKey:'eth'},
-  bsc:     {name:'BNB Chain', sym:'BNB',   dec:18, id:'0x38',   exp:'https://bscscan.com',           priceKey:'bnb'},
-  base:    {name:'Base',      sym:'ETH',   dec:18, id:'0x2105', exp:'https://basescan.org',          priceKey:'eth'},
-  polygon: {name:'Polygon',   sym:'MATIC', dec:18, id:'0x89',   exp:'https://polygonscan.com',       priceKey:'matic'},
-  arbitrum:{name:'Arbitrum',  sym:'ETH',   dec:18, id:'0xa4b1', exp:'https://arbiscan.io',           priceKey:'eth'},
-  optimism:{name:'Optimism',  sym:'ETH',   dec:18, id:'0xa',    exp:'https://optimistic.etherscan.io',priceKey:'eth'},
-  avalanche:{name:'Avalanche',sym:'AVAX',  dec:18, id:'0xa86a', exp:'https://snowtrace.io',          priceKey:'avax'},
-  fantom:  {name:'Fantom',    sym:'FTM',   dec:18, id:'0xfa',   exp:'https://ftmscan.com',           priceKey:'ftm'},
-  cronos:  {name:'Cronos',    sym:'CRO',   dec:18, id:'0x19',   exp:'https://cronoscan.com',         priceKey:'cro'},
-  linea:   {name:'Linea',     sym:'ETH',   dec:18, id:'0xe708', exp:'https://lineascan.build',       priceKey:'eth'},
+  eth:       {name:'Ethereum',   sym:'ETH',   dec:18, id:'0x1',      exp:'https://etherscan.io',              priceKey:'eth'},
+  bsc:       {name:'BNB Chain',  sym:'BNB',   dec:18, id:'0x38',     exp:'https://bscscan.com',               priceKey:'bnb'},
+  polygon:   {name:'Polygon',    sym:'MATIC', dec:18, id:'0x89',     exp:'https://polygonscan.com',           priceKey:'matic'},
+  arbitrum:  {name:'Arbitrum',   sym:'ETH',   dec:18, id:'0xa4b1',   exp:'https://arbiscan.io',               priceKey:'eth'},
+  base:      {name:'Base',       sym:'ETH',   dec:18, id:'0x2105',   exp:'https://basescan.org',              priceKey:'eth'},
+  optimism:  {name:'Optimism',   sym:'ETH',   dec:18, id:'0xa',      exp:'https://optimistic.etherscan.io',  priceKey:'eth'},
+  linea:     {name:'Linea',      sym:'ETH',   dec:18, id:'0xe708',   exp:'https://lineascan.build',           priceKey:'eth'},
+  avalanche: {name:'Avalanche',  sym:'AVAX',  dec:18, id:'0xa86a',   exp:'https://snowtrace.io',             priceKey:'avax'},
+  fantom:    {name:'Fantom',     sym:'FTM',   dec:18, id:'0xfa',     exp:'https://ftmscan.com',               priceKey:'ftm'},
+  cronos:    {name:'Cronos',     sym:'CRO',   dec:18, id:'0x19',     exp:'https://cronoscan.com',             priceKey:'cro'},
+  gnosis:    {name:'Gnosis',     sym:'xDAI',  dec:18, id:'0x64',     exp:'https://gnosisscan.io',             priceKey:'gnosis'},
+  chiliz:    {name:'Chiliz',     sym:'CHZ',   dec:18, id:'0x15b38',  exp:'https://scan.chiliz.com',           priceKey:'chz'},
+  moonbeam:  {name:'Moonbeam',   sym:'GLMR',  dec:18, id:'0x504',    exp:'https://moonscan.io',               priceKey:'glmr'},
+  moonriver: {name:'Moonriver',  sym:'MOVR',  dec:18, id:'0x505',    exp:'https://moonriver.moonscan.io',    priceKey:'movr'},
+  flow:      {name:'Flow EVM',   sym:'FLOW',  dec:18, id:'0x2eb',    exp:'https://flowscan.io',               priceKey:'flow'},
+  ronin:     {name:'Ronin',      sym:'RON',   dec:18, id:'0x7e4',    exp:'https://app.roninchain.com',        priceKey:'ron'},
+  lisk:      {name:'Lisk',       sym:'ETH',   dec:18, id:'0x46f',    exp:'https://blockscout.lisk.com',       priceKey:'eth'},
+  pulse:     {name:'PulseChain', sym:'PLS',   dec:18, id:'0x171',    exp:'https://scan.pulsechain.com',       priceKey:'pls'},
+  sei:       {name:'Sei',        sym:'SEI',   dec:18, id:'0x531',    exp:'https://seistream.app',             priceKey:'sei'},
+  monad:     {name:'Monad',      sym:'MON',   dec:18, id:'0x8f',     exp:'https://monadexplorer.com',         priceKey:'mon'},
 };
 
-// The 4 chains shown as individual pill options
+// NOTE: Berachain (Bera) is not yet supported by Moralis Data API.
+// We'll show a note to users when they expect it.
+
+// Individual pill options (the 4 main chains)
 const PILL_CHAINS = ['eth','bsc','base','sol'];
 
-// All chains scanned when "All Networks" is selected (EVM only for EVM address)
+// All EVM chain keys for "All Networks" scan
 const ALL_EVM_CHAIN_KEYS = Object.keys(EVM_CHAINS);
 
 const SOL_CHAIN = {name:'Solana', sym:'SOL', dec:9, exp:'https://solscan.io', priceKey:'sol'};
@@ -498,11 +521,14 @@ const EVM_API = 'https://deep-index.moralis.io/api/v2.2';
 const SOL_API = 'https://solana-gateway.moralis.io';
 const PER = 20;
 
-// Chain color map (for UI tags)
+// Chain colors for UI
 const CHAIN_COLORS = {
-  eth:'#7B93FF', bsc:'#f0b90b', base:'#4f7fff', polygon:'#8247e5',
-  arbitrum:'#28a0f0', optimism:'#ff0420', avalanche:'#e84142',
-  fantom:'#1969ff', cronos:'#002d74', linea:'#61dfff', sol:'#b57bff',
+  eth:'#7B93FF',     bsc:'#f0b90b',    polygon:'#8247e5', arbitrum:'#28a0f0',
+  base:'#4f7fff',    optimism:'#ff0420',linea:'#61dfff',   avalanche:'#e84142',
+  fantom:'#1969ff',  cronos:'#002d74', gnosis:'#04795b',  chiliz:'#cd0124',
+  moonbeam:'#53cbc9',moonriver:'#f2a007',flow:'#00ef8b',  ronin:'#1273ea',
+  lisk:'#4070f4',    pulse:'#9d4de6',  sei:'#9fef9f',     monad:'#836EF9',
+  sol:'#b57bff',
 };
 
 // ════════════════════════════════════════════════
@@ -525,7 +551,8 @@ let S = {
 // ════════════════════════════════════════════════
 async function fetchPrices() {
   try {
-    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum,binancecoin,solana,matic-network,avalanche-2,fantom,crypto-com-chain&vs_currencies=usd');
+    const ids = 'ethereum,binancecoin,solana,matic-network,avalanche-2,fantom,crypto-com-chain,gnosis,chiliz,moonbeam,moonriver,flow,ronin,pulsechain,sei-network';
+    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`);
     if (!r.ok) return;
     const d = await r.json();
     S.prices = {
@@ -536,6 +563,15 @@ async function fetchPrices() {
       avax:  d['avalanche-2']?.usd||0,
       ftm:   d.fantom?.usd||0,
       cro:   d['crypto-com-chain']?.usd||0,
+      gnosis:d.gnosis?.usd||0,
+      chz:   d.chiliz?.usd||0,
+      glmr:  d.moonbeam?.usd||0,
+      movr:  d.moonriver?.usd||0,
+      flow:  d.flow?.usd||0,
+      ron:   d.ronin?.usd||0,
+      pls:   d.pulsechain?.usd||0,
+      sei:   d['sei-network']?.usd||0,
+      mon:   0,
     };
     const f = v => v ? '$'+v.toLocaleString('en-US',{maximumFractionDigits:2}) : '—';
     setEl('pp-eth', f(S.prices.eth));
@@ -1182,11 +1218,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // Chain pill selector
   const hintMap = {
-    all: '🌐 All Networks — scans ETH, BNB, Base, Polygon, Arbitrum, Optimism, Avalanche, Fantom, Cronos, Linea + Solana',
-    eth: 'Ethereum only — ETH transactions on Ethereum mainnet',
-    bsc: 'BNB Chain only — BNB transactions on BNB Smart Chain',
-    base: 'Base only — ETH transactions on Coinbase Base',
-    sol: 'Solana only — SOL transactions on Solana mainnet',
+    all: '🌐 All Networks — scans all 20 chains: ETH, BNB, Polygon, Arbitrum, Base, Optimism, Linea, Avalanche, Fantom, Cronos, Gnosis, Chiliz, Moonbeam, Moonriver, Flow, Ronin, Lisk, PulseChain, Sei, Monad + Solana',
+    eth:  'Ethereum only',
+    bsc:  'BNB Chain only',
+    base: 'Base only',
+    sol:  'Solana only',
   };
   document.querySelectorAll('.cpill').forEach(b=>{
     b.addEventListener('click',()=>{
