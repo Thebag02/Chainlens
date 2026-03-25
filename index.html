@@ -310,10 +310,10 @@ tr:hover td{background:rgba(255,255,255,0.018);color:var(--text)}
       <button class="cpill" data-chain="sol"><div class="cdot"></div>Solana</button>
     </div>
     <div class="sbar">
-      <input id="wallet-input" type="text" placeholder="Enter wallet address (0x... for EVM  |  base58 for Solana)">
+      <input id="wallet-input" type="text" placeholder="Paste any wallet address (0x... or Solana)">
       <button class="gobtn" id="analyze-btn">Scan All Chains →</button>
     </div>
-    <div class="scan-hint" id="scan-hint">🌐 All Networks — scans Ethereum + BNB Chain + Base + Solana simultaneously</div>
+    <div class="scan-hint" id="scan-hint">🌐 All Networks — scans ETH, BNB, Base, Polygon, Arbitrum, Optimism, Avalanche, Fantom, Cronos, Linea + Solana</div>
   </div>
 
   <div id="empty-state">
@@ -796,44 +796,6 @@ async function analyze() {
   if (S.allTxns.length===0 && Object.values(S.chainData).every(c=>!c.ok)) {
     showState('error-state');
     setEl('emsg', isAllNetworks ? 'Failed to fetch data from all chains' : 'Failed to fetch data');
-    setEl('esub','Check your API key or try a different wallet address.');
-    document.getElementById('analyze-btn').disabled=false;
-    return;
-  }
-
-  renderAll();
-  showState('results');
-  document.getElementById('analyze-btn').disabled=false;
-}
-
-  // Fetch all chains in parallel
-  const results = await Promise.allSettled(
-    chains.map(c => {
-      if (c==='sol') return fetchSolChain(addr, updateChainProgress);
-      return fetchEVMChain(addr, c, updateChainProgress);
-    })
-  );
-
-  results.forEach((r, i) => {
-    const c = chains[i];
-    if (r.status==='fulfilled') {
-      const {txns, tokens} = r.value;
-      S.allTxns.push(...txns);
-      S.allTokens.push(...tokens);
-      S.chainData[c] = {txns, tokens, ok:true};
-      doneChainProgress(c, txns.length, false);
-    } else {
-      S.chainData[c] = {txns:[], tokens:[], ok:false};
-      doneChainProgress(c, 0, true);
-    }
-  });
-
-  // Sort all txns by date desc
-  S.allTxns.sort((a,b)=>new Date(b.block_timestamp||0)-new Date(a.block_timestamp||0));
-
-  if (S.allTxns.length===0 && Object.values(S.chainData).every(c=>!c.ok)) {
-    showState('error-state');
-    setEl('emsg','Failed to fetch data from all chains');
     setEl('esub','Check your API key or try a different wallet address.');
     document.getElementById('analyze-btn').disabled=false;
     return;
